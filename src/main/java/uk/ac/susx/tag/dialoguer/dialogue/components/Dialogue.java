@@ -168,6 +168,8 @@ public class Dialogue {
             putToWorkingMemory(key, appendValue);
         }
     }
+    public void removeFromWorkingMemory(String key) { workingMemory.remove(key); }
+    public void clearWorkingMemory() { workingMemory = new HashMap<>(); }
     public String getFromWorkingMemory(String key) { return workingMemory.get(key); }
     public String getStrippedText(){ return getFromWorkingMemory("stripped"); }
     public String getStrippedNoStopwordsText(){ return getFromWorkingMemory("strippedNoStopwords"); }
