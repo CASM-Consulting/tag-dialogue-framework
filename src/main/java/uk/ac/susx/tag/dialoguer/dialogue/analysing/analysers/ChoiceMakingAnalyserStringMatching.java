@@ -7,6 +7,7 @@ import uk.ac.susx.tag.dialoguer.dialogue.analysing.factories.AnalyserFactory;
 import uk.ac.susx.tag.dialoguer.dialogue.analysing.factories.ChoiceMakingAnalyserStringMatchingFactory;
 import uk.ac.susx.tag.dialoguer.dialogue.components.Dialogue;
 import uk.ac.susx.tag.dialoguer.dialogue.components.Intent;
+import uk.ac.susx.tag.dialoguer.dialogue.handling.handlers.InteractiveHandler;
 import uk.ac.susx.tag.dialoguer.knowledge.linguistic.EnglishStemmer;
 import uk.ac.susx.tag.dialoguer.knowledge.linguistic.Numbers;
 import uk.ac.susx.tag.dialoguer.knowledge.linguistic.SimplePatterns;
@@ -30,10 +31,19 @@ import java.util.stream.Collectors;
  */
 public class ChoiceMakingAnalyserStringMatching  extends Analyser {
 
-    private double choiceFraction;
+    private double choiceFraction = 0.5;
+
+    public ChoiceMakingAnalyserStringMatching() {
+
+    }
 
     public ChoiceMakingAnalyserStringMatching(double choiceFraction){
         this.choiceFraction = choiceFraction;
+    }
+
+    public ChoiceMakingAnalyserStringMatching(ChoiceMakingAnalyserStringMatching other) {
+        super();
+        choiceFraction = other.choiceFraction;
     }
 
     public static final Set<String> nullChoicePhrases = Sets.newHashSet(
@@ -55,7 +65,9 @@ public class ChoiceMakingAnalyserStringMatching  extends Analyser {
         try {
             
             String firstWord = SimplePatterns.whitespaceRegex.split(SimplePatterns.stripPunctuation(userMessage), 2)[0];
-            Integer.toString(Numbers.parseNumber(firstWord));
+            if(!(Numbers.parseNumber(firstWord)-1<choices.size())) {
+                throw new NumberFormatException();
+            }
             return true;
 
         } catch (NumberFormatException e) {
@@ -92,7 +104,7 @@ public class ChoiceMakingAnalyserStringMatching  extends Analyser {
      * Try to find the most likely choice being made, by first checking for a number, then if failed, use levenshtein
      * distance.
      */
-    public static int whichChoice(Dialogue d, List<String> choices) {
+    public static int whichChoice(Dialogue d, List<String> choices, double threshold) {
         if (choices.size() == 0) throw new RuntimeException("There must be at least one choice");
 
         String userMessage = d.getStrippedText();
@@ -124,7 +136,6 @@ public class ChoiceMakingAnalyserStringMatching  extends Analyser {
             return closestChoice;
         }
     }
-
     /**
      * If the stripped message is equal to any of the null choice messages, it is a null choice.
      */
@@ -145,7 +156,7 @@ public class ChoiceMakingAnalyserStringMatching  extends Analyser {
             if (isNullChoice(d)){
                 return Intent.buildNullChoiceIntent(message).toList();
             } else if (isChoice(d, d.getChoices(), choiceFraction)){
-                int choice = whichChoice(d, d.getChoices());
+                int choice = whichChoice(d, d.getChoices(), choiceFraction);
                 return Intent.buildChoiceIntent(message, choice).toList();
             } else {
                 return Intent.buildNoChoiceIntent(message).toList();
