@@ -22,17 +22,7 @@ public class GpsProblemHandler implements Handler.ProblemHandler {
 
     @Override
     public void handle(List<Intent> intents, Dialogue dialogue, Object resource) {
-        List<Message> history = dialogue.getMessageHistory();
-        double lat = history.get(history.size() - 1).getUserData().getLatitude();
-        double lon = history.get(history.size() - 1).getUserData().getLongitude();
-
-        //TODO: Handle no geo-tag (how to determine whether tweeth as one?)
-        NominatimAPIWrapper.NomResult loc = nom.queryReverseAPI(lat, lon);
-        dialogue.putToWorkingMemory("location_processed", loc.display_name);
-
-        dialogue.pushFocus(InteractiveHandler.aGpsLocConfirm);
-        dialogue.pushFocus(InteractiveHandler.qGpsLocConfirm);
-
+        InteractiveHandler.handleGps(dialogue);
     }
 }
 

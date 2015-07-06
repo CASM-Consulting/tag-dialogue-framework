@@ -2,15 +2,16 @@ package uk.ac.susx.tag.dialoguer.dialogue.handling.handlers;
 
 import uk.ac.susx.tag.dialoguer.dialogue.components.Dialogue;
 import uk.ac.susx.tag.dialoguer.dialogue.components.Intent;
+import uk.ac.susx.tag.dialoguer.dialogue.components.Message;
 import uk.ac.susx.tag.dialoguer.dialogue.components.Response;
 import uk.ac.susx.tag.dialoguer.dialogue.handling.factories.HandlerFactory;
 import uk.ac.susx.tag.dialoguer.dialogue.handling.handlers.interactiveIntentHandlers.*;
-import uk.ac.susx.tag.dialoguer.knowledge.database.product.processing.StringProcessor;
+import uk.ac.susx.tag.dialoguer.knowledge.location.NominatimAPIWrapper;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Created by Daniel Saska on 6/25/2015.
@@ -21,6 +22,10 @@ public class InteractiveHandler extends Handler {
 
     private Map<String, String> humanReadableSlotNames; //read from config file
 
+    private DemandProblemHandler demandProblemHandler = new DemandProblemHandler();
+    static private NominatimAPIWrapper nom = new NominatimAPIWrapper();
+
+
     //Intent names
     public static final String unknownIntent="unknown";
     public static final String locationIntent="location";
@@ -28,11 +33,19 @@ public class InteractiveHandler extends Handler {
     public static final String yesNoIntent="yes_no";
     public static final String landmarkIntent = "landmark";
     public static final String helpIntent = "help";
-    public static final String choiceIntent = "choice";
+    public static final String multichocieIntent = "simple_multichoice";
+    public static final String choiceIntent = "simple_choice";
+    public static final String demFiredepIntent = "demand_firedep";
+    public static final String demMedicalIntent = "demand_medical";
+    public static final String demPoliceIntent = "demand_police";
+    public static final String demUnknownIntent = "";
+    public static final String demNothing = "demand_nothing";
 
     //Response/focus/state names
     public static final String initial = "initial";
+    public static final String apology = "apology";
     public static final String qLocation = "q_location";
+    public static final String qLocationAgain = "q_location_again";
     public static final String aLocation = "a_location";
     public static final String unknownResponse="unknown"; //For handeling aux. errors
     public static final String confirmResponse="confirm"; //Asks user to confirm his choice
@@ -45,24 +58,35 @@ public class InteractiveHandler extends Handler {
     public static final String aGpsHelp="a_need_help_gps";
     public static final String qGpsLocConfirm="q_confirm_gps_location"; //Asks user whether he wants help with tunring on the gps
     public static final String aGpsLocConfirm="a_confirm_gps_location";
-    public static final String qMedicalHelp="q_medical_help"; //Asks user whether he needs abulance called
-    public static final String aMedicalHelp="q_medical_help";
+    public static final String qWhatHelp ="q_medical_help"; //Asks user whether he needs abulance called
+    public static final String aWhatHelp ="q_medical_help";
     public static final String qLandmarks="q_landmarks";//Asks user whether he can see any landmarks such as KFC or other points of interest
-    public static final String aLandmarks="q_landmarks";
+    public static final String aLandmarks="a_landmarks";
+    public static final String aLeaveLandmark="a_leave_landmark";
+    public static final String qLeaveLandmark="q_leave_landmark";
     public static final String qLandmarksRemove="q_remove_landmark";
+    public static final String qChoiceRephrase="q_choice_rephrase";
     public static final String landmarkNotFound="no_landmark_found";//NO instances of such landmark were found
     public static final String qAddLandmarks="q_add_landmarks";//Asks user for more landmarks
     public static final String qLocationConfirm="q_location_confirm";//Asks user to confirm location for very last time
     public static final String aLocationConfirm="a_location_confirm";
-    public static final String medicalHelp="medical_help"; //Inform user about help being dispatched.
+    public static final String demandSent="demand_sent"; //Inform user about help being dispatched.
 
     //Slot names
     public static final String locationSlot="location";
     public static final String landmarkSlot="landmark";
     public static final String landmarksSlot="landmarks";
+    public static final String demandsSlot="demand";
     public static final String yesNoSlot="yes_no";
     public static final String addressSlot="address";
     public static final String nLocationsSlot = "n_loc";
+
+    public static final String demands[] = {"Fire Department", "Medical Help", "Police"};
+
+    //Flags
+    public static final String demandFlag = "demand_flag";
+    public static final String addressConfirmFlag = "address_confirm_flag";
+
 
     public InteractiveHandler() {
 
@@ -77,6 +101,9 @@ public class InteractiveHandler extends Handler {
     @Override
     public Response handle(List<Intent> intents, Dialogue dialogue) {
         boolean complete=useFirstProblemHandler(intents, dialogue, null); //is there a problem handler?
+        if (demandProblemHandler.isInHandleableState(intents, dialogue)) {
+            demandProblemHandler.handle(intents, dialogue, null);
+        }
         if(!complete){ //no problem handler or intent handler
             dialogue.pushFocus(unknownResponse);
         }
@@ -113,10 +140,33 @@ public class InteractiveHandler extends Handler {
         if (!d.isEmptyFocusStack()) {
             focus = d.popTopFocus();
         }
+
+        //If we have all data we can ignore whatever was happening and finalize the dialog
+        String address = "";
+        String addressConfirm = "";
+        String demand = "";
+        if (d.getFromWorkingMemory("location_processed") != null) {
+            address = d.getFromWorkingMemory("location_processed");
+        }
+        if (d.getFromWorkingMemory(addressConfirmFlag) != null) {
+            addressConfirm = d.getFromWorkingMemory(addressConfirmFlag);
+        }
+        if (d.getFromWorkingMemory(demandFlag) != null) {
+            demand = d.getFromWorkingMemory(demandFlag);
+        }
+        System.err.println("FLAGS");
+        System.err.println(" | Address='"+address+"'");
+        System.err.println(" | AddressConfirm='"+addressConfirm+"'");
+        System.err.println(" | Demand='"+demand+"'");
+
+        if (!address.equals("") && !addressConfirm.equals("") && !demand.equals("")) {
+            focus = demandSent;
+        }
+
+
         Map<String, String> responseVariables = new HashMap<>();
         switch(focus) {
             case qGpsLocConfirm:
-            case qLocationConfirm:
                 responseVariables.put(addressSlot, d.getFromWorkingMemory("location_processed"));
                 break;
             case qAddLandmarks:
@@ -125,9 +175,67 @@ public class InteractiveHandler extends Handler {
             case qLandmarksRemove:
                 responseVariables.put(landmarksSlot, d.getFromWorkingMemory("landmarks"));
                 break;
+            case qLocationConfirm:
+                responseVariables.put(addressSlot, d.getFromWorkingMemory("location_processed"));
+            case demandSent:
+                switch (d.getFromWorkingMemory(demandFlag)) {
+                    case demFiredepIntent:
+                        responseVariables.put(demandsSlot, "Fire department");
+                        break;
+                    case demMedicalIntent:
+                        responseVariables.put(demandsSlot, "Ambulance");
+                        break;
+                    case demPoliceIntent:
+                        responseVariables.put(demandsSlot, "Police");
+                        break;
+                    case demNothing:
+                        responseVariables.put(demandsSlot, "Nothing");
+                        break;
+                }
+                break;
 
         }
         return new Response(focus,responseVariables);
 
+    }
+
+    public static void finalizeRequest(Dialogue dialogue) {
+
+        String addressConfirm = "";
+        String demand = "";
+        if (dialogue.getFromWorkingMemory(addressConfirmFlag) != null) {
+            addressConfirm = dialogue.getFromWorkingMemory(addressConfirmFlag);
+        }
+        if (dialogue.getFromWorkingMemory(demandFlag) != null) {
+            demand = dialogue.getFromWorkingMemory(demandFlag);
+        }
+
+        if (demand.equals("")) {
+            dialogue.pushFocus(InteractiveHandler.aWhatHelp);
+            dialogue.pushFocus(InteractiveHandler.qWhatHelp);
+            dialogue.setChoices(Arrays.asList(demands));
+        }
+        if (addressConfirm.equals("")) {
+            dialogue.pushFocus(InteractiveHandler.aLocationConfirm);
+            dialogue.pushFocus(InteractiveHandler.qLocationConfirm);
+        }
+    }
+
+    public static void handleGps(Dialogue dialogue) {
+        if (!dialogue.getUserData().isLocationDataPresent()) {
+            dialogue.pushFocus(InteractiveHandler.aLocation);
+            dialogue.pushFocus(InteractiveHandler.qLocation);
+        }
+
+        double lat = dialogue.getUserData().getLatitude();
+        double lon = dialogue.getUserData().getLongitude();
+
+
+        NominatimAPIWrapper.NomResult loc = nom.queryReverseAPI(lat, lon);
+        dialogue.putToWorkingMemory("location_processed", loc.display_name);
+        dialogue.putToWorkingMemory(InteractiveHandler.addressConfirmFlag, "");
+
+        dialogue.pushFocus(InteractiveHandler.aGpsLocConfirm);
+        dialogue.pushFocus(InteractiveHandler.qGpsLocConfirm);
     }
 }

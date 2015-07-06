@@ -175,6 +175,7 @@ public class Intent {
  * Default intents
  **********************************************/
     public static Intent buildNullChoiceIntent(String userMessage){ return new Intent(nullChoice, userMessage);}
+    public static Intent buildAllChoiceIntent(String userMessage){ return new Intent(allChoice, userMessage);}
     public static Intent buildNoChoiceIntent(String userMessage){
         return new Intent(noChoice, userMessage);
     }

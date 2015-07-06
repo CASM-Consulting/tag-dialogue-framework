@@ -1,6 +1,5 @@
 package uk.ac.susx.tag.dialoguer.dialogue.handling.handlers.interactiveIntentHandlers;
 
-import com.jcabi.immutable.Array;
 import uk.ac.susx.tag.dialoguer.dialogue.components.Dialogue;
 import uk.ac.susx.tag.dialoguer.dialogue.components.Intent;
 import uk.ac.susx.tag.dialoguer.dialogue.handling.handlers.Handler;
@@ -23,18 +22,18 @@ public class LandmarkProblemHandler implements Handler.ProblemHandler {
     public boolean isInHandleableState(List<Intent> intents, Dialogue dialogue) {
         if (dialogue.isEmptyFocusStack()) { return false; }
         boolean intentmatch = intents.stream().filter(i->i.getName().equals(InteractiveHandler.landmarkIntent)).count()>0;
-        boolean intentmatch2 = intents.stream().filter(i->i.getName().equals(InteractiveHandler.choiceIntent)).count()>0;
+        boolean intentmatch2 = intents.stream().filter(i->i.getName().equals(Intent.choice)).count()>0;
+        boolean intentmatch3 = intents.stream().filter(i->i.getName().equals(Intent.allChoice)).count()>0;
+        boolean intentmatch4 = intents.stream().filter(i->i.getName().equals(Intent.noChoice)).count()>0;
+        boolean intentmatch5 = intents.stream().filter(i->i.getName().equals(Intent.nullChoice)).count()>0;
         boolean statematch = dialogue.peekTopFocus().equals(InteractiveHandler.aLandmarks);
-        return (intentmatch || intentmatch2) && statematch;
+        return (intentmatch || intentmatch2 || intentmatch3 || intentmatch4 || intentmatch5) && statematch;
     }
 
     @Override
     public void handle(List<Intent> intents, Dialogue dialogue, Object resource) {
         System.err.println("landmark intent handler fired");
-        //TODO: Handle no choice
-        //TOOD: Handle all choice
-        //TODO: Handle null choice
-        Intent intent = intents.stream().filter(i->i.isName(InteractiveHandler.choiceIntent)).findFirst().orElse(null);
+        Intent intent = intents.stream().filter(i -> i.getSource().equals(InteractiveHandler.multichocieIntent)).filter(i->i.isName(Intent.choice)).findFirst().orElse(null);
         if (intent != null) {
             Iterator<Intent.Slot> it = intent.getSlotByType("choice").iterator();
             while (it.hasNext()) {
@@ -60,10 +59,10 @@ public class LandmarkProblemHandler implements Handler.ProblemHandler {
             dialogue.pushFocus(InteractiveHandler.qAddLandmarks);
             return;
         }
-        intent = intents.stream().filter(i->i.isName(InteractiveHandler.landmarkIntent)).findFirst().orElse(null);
-        if(intent.getSlotByType("place") != null && !intent.getSlotByType("place").iterator().next().value.equals("")) {
+        intent = intents.stream().filter(i -> i.isName(InteractiveHandler.landmarkIntent)).findFirst().orElse(null);
+        if(intent != null && intent.getSlotByType("place") != null && !intent.getSlotByType("place").iterator().next().value.equals("")) {
 
-            NominatimAPIWrapper.NomResult quick_results[] = nom.queryAPI(intent.getSlotByType("place").iterator().next().value.replace("¥","")+ ", " + dialogue.getFromWorkingMemory("location_given"), 1, 0, 0);
+            NominatimAPIWrapper.NomResult quick_results[] = nom.queryAPI(intent.getSlotByType("place").iterator().next().value.replace("¥", "") + ", " + dialogue.getFromWorkingMemory("location_given"), 1, 0, 0);
             if (quick_results.length == 0) {
                 dialogue.pushFocus(InteractiveHandler.landmarkNotFound);
                 return;
@@ -81,12 +80,11 @@ public class LandmarkProblemHandler implements Handler.ProblemHandler {
             dialogue.putToWorkingMemory("n_loc", Integer.toString(areas.size()));
             if (areas.size() == 1) { //Found precise position
                 dialogue.putToWorkingMemory("location_processed", areas.get(0).get(0).display_name);
-                dialogue.pushFocus(InteractiveHandler.aMedicalHelp);
-                dialogue.pushFocus(InteractiveHandler.qMedicalHelp);
+                dialogue.putToWorkingMemory(InteractiveHandler.addressConfirmFlag, "");
+                InteractiveHandler.finalizeRequest(dialogue);
                 return;
             }
             if (areas.size() == 0) {
-                //TODO: Give multiple-choce and select the most likely one
                 dialogue.setChoices(landmarks);
                 String landmarkList = "";
                 for (String l : landmarks) {
@@ -97,8 +95,51 @@ public class LandmarkProblemHandler implements Handler.ProblemHandler {
                 dialogue.pushFocus(InteractiveHandler.qLandmarksRemove);
                 return;
             }
+            dialogue.pushFocus(InteractiveHandler.qAddLandmarks);
         }
-        dialogue.pushFocus(InteractiveHandler.qAddLandmarks);
+        intent = intents.stream().filter(i -> i.getSource().equals(InteractiveHandler.multichocieIntent)).filter(i->i.isName(Intent.allChoice)).findFirst().orElse(null);
+        if (intent != null) {
+            landmarks.clear();
+            List<NominatimAPIWrapper.NomResult> instances[] = new List[landmarks.size()];
+            for (int i = 0; i < landmarks.size(); ++i) {
+                NominatimAPIWrapper.NomResult results[] = nom.queryAPI(landmarks.get(i) + ", " + dialogue.getFromWorkingMemory("location_given"), 200, 0, 1);
+                instances[i] = Arrays.asList(results);
+            }
+            List<List<NominatimAPIWrapper.NomResult>> areas = new ArrayList<>();
+            buildAreas(0, instances, areas);
+            dialogue.putToWorkingMemory("n_loc", Integer.toString(areas.size()));
+            dialogue.pushFocus(InteractiveHandler.qAddLandmarks);
+            return;
+        }
+        intent = intents.stream().filter(i->i.isName(Intent.nullChoice)).findFirst().orElse(null);
+        if (intent != null) {
+            dialogue.pushFocus(InteractiveHandler.qChoiceRephrase);
+        }
+
+        intent = intents.stream().filter(i -> i.getSource().equals(InteractiveHandler.multichocieIntent)).filter(i->i.isName(Intent.noChoice)).findFirst().orElse(null);
+        if (intent != null) {
+            dialogue.pushFocus(InteractiveHandler.aLeaveLandmark);
+            dialogue.pushFocus(InteractiveHandler.qLeaveLandmark);
+            List<String> choices  = new ArrayList<>();
+            choices.add("provide a address manually");
+            choices.add("use GPS on my device");
+            dialogue.setChoices(choices);
+        }
+        intent = intents.stream().filter(i -> i.getSource().equals(InteractiveHandler.choiceIntent)).filter(i->i.isName(Intent.noChoice)).findFirst().orElse(null);
+        if (intent != null) {
+            dialogue.pushFocus("apology");
+        }
+        intent = intents.stream().filter(i -> i.getSource().equals(InteractiveHandler.choiceIntent)).filter(i->i.isName(Intent.choice)).findFirst().orElse(null);
+        if (intent != null) {
+            if (intent.getSlotByType("choice").iterator().next().equals("0")) {
+                dialogue.pushFocus(InteractiveHandler.aLocation);
+                dialogue.pushFocus(InteractiveHandler.qLocation);
+            }
+            if (intent.getSlotByType("choice").iterator().next().equals("1")) {
+
+            }
+        }
+
     }
 
     private void buildAreas(int lmark, List<NominatimAPIWrapper.NomResult> instances[], List<List<NominatimAPIWrapper.NomResult>> areas) {

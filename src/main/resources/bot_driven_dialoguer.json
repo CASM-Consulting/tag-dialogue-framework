@@ -17,10 +17,14 @@
       "path" : "bot_driven_wit_config_location.json"
     },
     {
+      "name" : "wit.ai",
+      "path" : "bot_driven_wit_config_demands.json"
+    },
+    {
       "name" : "simple_yes_no"
     },
     {
-      "name" : "simple_choice",
+      "name" : "simple_multichoice",
       "sourceId" : "simple_choice",
       "path" : "bot_driven_simple_choice.json"
     }
@@ -33,6 +37,11 @@
     "q_location" : {
       "templates" : [
         "Where are you?"
+      ]
+    },
+    "q_location_again" : {
+      "templates" : [
+        "Could not find such location, please try again."
       ]
     },
     "q_enable_gps" : {
@@ -73,9 +82,19 @@
         "Please select landmarks to remove from search from following list: {landmarks}."
       ]
     },
+    "q_choice_rephrase" : {
+      "templates" : [
+        "Could you please rephrase your choice, please?"
+      ]
+    },
+    "q_leave_landmark" : {
+      "templates" : [
+        "Your alternative choices are to 1) provide a address manually, 2) use GPS on your device, what do you want to do?"
+      ]
+    },
     "q_location_confirm" : {
       "templates" : [
-        "Is \"{address}\" the correct address to which an ambulance shoud be dispatched?"
+        "Is \"{address}\" the correct address to which an {demand} shoud be dispatched?"
       ],
       "requestingYesNo":"yes"
     },
@@ -85,9 +104,9 @@
       ],
       "requestingYesNo":"yes"
     },
-    "medical_help" : {
+    "demand_sent" : {
       "templates" : [
-        "Medical help has beed dispatched to your location, if you need medical advice meanwhile, tweet @HUMAN_DOCTOR"
+        "{demand} has beed dispatched to your location. If you need further help or advice, tweet @HUMAN_OPERATOR"
       ]
     },
     "q_wait_gps" : {
@@ -98,6 +117,11 @@
     "help_gps" : {
       "templates" : [
         "I am not able to help you with this task right now, please search on the internet as to how to enable the GPS."
+      ]
+    },
+    "apology" : {
+      "templates" : [
+        "I am sorry I could not help you then."
       ]
     },
     "unknown" : {

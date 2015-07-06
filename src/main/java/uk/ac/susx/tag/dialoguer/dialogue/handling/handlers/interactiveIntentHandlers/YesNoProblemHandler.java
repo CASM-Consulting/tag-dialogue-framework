@@ -22,10 +22,9 @@ public class YesNoProblemHandler implements Handler.ProblemHandler {
 
         boolean statematch1 = dialogue.peekTopFocus().equals(InteractiveHandler.aEnableGps);
         boolean statematch2 = dialogue.peekTopFocus().equals(InteractiveHandler.aGpsHelp);
-        boolean statematch3 = dialogue.peekTopFocus().equals(InteractiveHandler.aMedicalHelp);
         boolean statematch4 = dialogue.peekTopFocus().equals(InteractiveHandler.aLocationConfirm);
         boolean statematch5 = dialogue.peekTopFocus().equals(InteractiveHandler.aGpsLocConfirm);
-        return  intentmatch && (statematch1 || statematch2 || statematch3 || statematch4 || statematch5);
+        return  intentmatch && (statematch1 || statematch2 || statematch4 || statematch5);
     }
 
     @Override
@@ -60,17 +59,15 @@ public class YesNoProblemHandler implements Handler.ProblemHandler {
                 dialogue.pushFocus(InteractiveHandler.qLandmarks);
             }
 
-        } else if (dialogue.peekTopFocus().equals(InteractiveHandler.aMedicalHelp)) {
-            if(intent.getName().equals("yes")) {
-                dialogue.pushFocus(InteractiveHandler.aLocationConfirm);
-                dialogue.pushFocus(InteractiveHandler.qLocationConfirm);
+        }  else if (dialogue.peekTopFocus().equals(InteractiveHandler.aLocationConfirm)) {
+            if (dialogue.getFromWorkingMemory(InteractiveHandler.addressConfirmFlag).equals("Y")) {
+                dialogue.pushFocus(InteractiveHandler.demandSent);
+                InteractiveHandler.finalizeRequest(dialogue);
+                return;
             }
-            else if(intent.getName().equals("no")) {
-                //TODO: What to do from here?
-            }
-        } else if (dialogue.peekTopFocus().equals(InteractiveHandler.aLocationConfirm)) {
             if(intent.getName().equals("yes")) {
-                dialogue.pushFocus(InteractiveHandler.medicalHelp);
+                dialogue.putToWorkingMemory(InteractiveHandler.addressConfirmFlag, "Y");
+                dialogue.pushFocus(InteractiveHandler.demandSent);
             } else if(intent.getName().equals("no")) {
                 dialogue.clearWorkingIntents();
                 dialogue.pushFocus(InteractiveHandler.aLocation);
@@ -78,11 +75,12 @@ public class YesNoProblemHandler implements Handler.ProblemHandler {
             }
         } else if (dialogue.peekTopFocus().equals(InteractiveHandler.aGpsLocConfirm)) {
             if(intent.getName().equals("yes")) {
-                dialogue.pushFocus(InteractiveHandler.aMedicalHelp);
-                dialogue.pushFocus(InteractiveHandler.qMedicalHelp);
+                dialogue.putToWorkingMemory(InteractiveHandler.addressConfirmFlag, "Y");
+                dialogue.pushFocus(InteractiveHandler.aWhatHelp);
+                dialogue.pushFocus(InteractiveHandler.qWhatHelp);
             } else if(intent.getName().equals("no")) {
-                dialogue.clearWorkingIntents();
-                //TODO: Ask what is wrong about it and try to use as much of it as possible as basis for Landmark-based search
+                dialogue.pushFocus(InteractiveHandler.aLocation);
+                dialogue.pushFocus(InteractiveHandler.qLocation);
             }
         }
     }
