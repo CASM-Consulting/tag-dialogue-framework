@@ -126,7 +126,13 @@ public class JSONInterpret {
         String text = tweet.fetchStrippedText();
         Map<String,String> attributes=new HashMap<>();
         attributes.put("name",address);
-        User userData = new User(tweet.getLat(),tweet.getLon(),tweet.getRadius(),attributes);
+
+        User userData;
+        if (tweet.isGeoEnabled()) {
+            userData = new User(tweet.getLat(), tweet.getLon(), tweet.getRadius(), attributes);
+        } else {
+            userData = new User(attributes);
+        }
 
         //convert the latest dialog system message into a tweet, with dialog fromAddr as the @recipient
         String response = tweet.createTweetText(address, mytrackers.get(app).getResponse(id,text,userData));
