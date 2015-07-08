@@ -1,5 +1,7 @@
 package uk.ac.susx.tag.dialoguer.dialogue.handling.factories;
 
+import uk.ac.susx.tag.dialoguer.Dialoguer;
+import uk.ac.susx.tag.dialoguer.dialogue.analysing.analysers.NerQuestionAnalyser;
 import uk.ac.susx.tag.dialoguer.dialogue.handling.handlers.InteractiveHandler;
 import uk.ac.susx.tag.dialoguer.dialogue.handling.handlers.Handler;
 
@@ -11,7 +13,7 @@ import java.io.IOException;
 public class InteractiveHandlerFactory implements HandlerFactory {
     @Override
     public Handler readJson(String resourcePath) throws IOException {
-        return new InteractiveHandler();//TODO
+        return new InteractiveHandler(Dialoguer.readObjectFromJsonResourceOrFile(resourcePath, InteractiveHandler.class));
     }
 
     @Override

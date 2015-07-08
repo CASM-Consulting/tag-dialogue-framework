@@ -1,4 +1,13 @@
 {
+  "demands" : {
+    "demand_firedep" : "Fire Department",
+    "demand_medical" : "Medical Help",
+    "demand_police" : "Police car",
+    "demand_nothing" : "Nothing",
+    "demand_kittens" : "Kittens",
+    "demands_pm" : "Prime Minister",
+    "demands_luck" : "Good Luck"
+  },
   "humanReadableSlotNames" : {
     "yes_no" : "yes or no",
     "loacation" : "location"

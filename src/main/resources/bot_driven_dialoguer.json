@@ -25,8 +25,12 @@
     },
     {
       "name" : "simple_multichoice",
-      "sourceId" : "simple_choice",
+      "sourceId" : "simple_multichoice",
       "path" : "bot_driven_simple_choice.json"
+    },
+    {
+      "name" : "simple_choice",
+      "sourceId" : "simple_choice"
     }
   ],
   "humanReadableSlotNames" : {
@@ -56,9 +60,9 @@
       ],
       "requestingYesNo":"yes"
     },
-    "q_medical_help" : {
+    "q_what_help" : {
       "templates" : [
-        "Do you need medical help at your location?"
+        "Please select what service you require at your location: {demands}."
       ],
       "requestingYesNo":"yes"
     },
@@ -89,7 +93,7 @@
     },
     "q_leave_landmark" : {
       "templates" : [
-        "Your alternative choices are to 1) provide a address manually, 2) use GPS on your device, what do you want to do?"
+        "Your alternative choices are to 1) provide an address manually, 2) use GPS on your device, what do you want to do?"
       ]
     },
     "q_location_confirm" : {

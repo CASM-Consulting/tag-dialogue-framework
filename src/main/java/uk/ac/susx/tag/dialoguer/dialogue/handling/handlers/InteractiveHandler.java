@@ -8,10 +8,7 @@ import uk.ac.susx.tag.dialoguer.dialogue.handling.factories.HandlerFactory;
 import uk.ac.susx.tag.dialoguer.dialogue.handling.handlers.interactiveIntentHandlers.*;
 import uk.ac.susx.tag.dialoguer.knowledge.location.NominatimAPIWrapper;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by Daniel Saska on 6/25/2015.
@@ -35,9 +32,9 @@ public class InteractiveHandler extends Handler {
     public static final String helpIntent = "help";
     public static final String multichocieIntent = "simple_multichoice";
     public static final String choiceIntent = "simple_choice";
-    public static final String demFiredepIntent = "demand_firedep";
-    public static final String demMedicalIntent = "demand_medical";
-    public static final String demPoliceIntent = "demand_police";
+    //public static final String demFiredepIntent = "demand_firedep";
+    //public static final String demMedicalIntent = "demand_medical";
+    //public static final String demPoliceIntent = "demand_police";
     public static final String demUnknownIntent = "";
     public static final String demNothing = "demand_nothing";
 
@@ -58,8 +55,8 @@ public class InteractiveHandler extends Handler {
     public static final String aGpsHelp="a_need_help_gps";
     public static final String qGpsLocConfirm="q_confirm_gps_location"; //Asks user whether he wants help with tunring on the gps
     public static final String aGpsLocConfirm="a_confirm_gps_location";
-    public static final String qWhatHelp ="q_medical_help"; //Asks user whether he needs abulance called
-    public static final String aWhatHelp ="q_medical_help";
+    public static final String qWhatHelp ="q_what_help"; //Asks user whether he needs abulance called
+    public static final String aWhatHelp ="q_what_help";
     public static final String qLandmarks="q_landmarks";//Asks user whether he can see any landmarks such as KFC or other points of interest
     public static final String aLandmarks="a_landmarks";
     public static final String aLeaveLandmark="a_leave_landmark";
@@ -76,17 +73,18 @@ public class InteractiveHandler extends Handler {
     public static final String locationSlot="location";
     public static final String landmarkSlot="landmark";
     public static final String landmarksSlot="landmarks";
-    public static final String demandsSlot="demand";
+    public static final String demandSlot="demand";
+    public static final String demandsSlot="demands";
     public static final String yesNoSlot="yes_no";
     public static final String addressSlot="address";
     public static final String nLocationsSlot = "n_loc";
-
-    public static final String demands[] = {"Fire Department", "Medical Help", "Police"};
 
     //Flags
     public static final String demandFlag = "demand_flag";
     public static final String addressConfirmFlag = "address_confirm_flag";
 
+    public Map<String, String> demands;
+    public List<String> demandChoices;
 
     public InteractiveHandler() {
 
@@ -98,11 +96,23 @@ public class InteractiveHandler extends Handler {
         super.registerProblemHandler(new GpsProblemHandler());
     }
 
+    public InteractiveHandler(InteractiveHandler config) {
+        super.registerProblemHandler(new UnknownProblemHandler());
+        super.registerProblemHandler(new YesNoProblemHandler());
+        super.registerProblemHandler(new LocationProblemHandler());
+        super.registerProblemHandler(new HelpProblemHelper());
+        super.registerProblemHandler(new LandmarkProblemHandler());
+        super.registerProblemHandler(new GpsProblemHandler());
+        demands = config.demands;
+        demandChoices = new ArrayList<String>(demands.values());
+    }
+
     @Override
     public Response handle(List<Intent> intents, Dialogue dialogue) {
-        boolean complete=useFirstProblemHandler(intents, dialogue, null); //is there a problem handler?
-        if (demandProblemHandler.isInHandleableState(intents, dialogue)) {
-            demandProblemHandler.handle(intents, dialogue, null);
+        boolean complete=useFirstProblemHandler(intents, dialogue, this); //is there a problem handler?
+        if (demandProblemHandler.isInHandleableState(intents, dialogue, this)) {
+            demandProblemHandler.handle(intents, dialogue, this);
+            complete = true;
         }
         if(!complete){ //no problem handler or intent handler
             dialogue.pushFocus(unknownResponse);
@@ -178,20 +188,19 @@ public class InteractiveHandler extends Handler {
             case qLocationConfirm:
                 responseVariables.put(addressSlot, d.getFromWorkingMemory("location_processed"));
             case demandSent:
-                switch (d.getFromWorkingMemory(demandFlag)) {
-                    case demFiredepIntent:
-                        responseVariables.put(demandsSlot, "Fire department");
-                        break;
-                    case demMedicalIntent:
-                        responseVariables.put(demandsSlot, "Ambulance");
-                        break;
-                    case demPoliceIntent:
-                        responseVariables.put(demandsSlot, "Police");
-                        break;
-                    case demNothing:
-                        responseVariables.put(demandsSlot, "Nothing");
-                        break;
+                responseVariables.put(demandSlot, demands.get(d.getFromWorkingMemory(demandFlag)));
+                break;
+            case qWhatHelp:
+                String dmds = "";
+                for (int i = 0; i < demandChoices.size(); ++i) {
+                    dmds += "" + (i+1) + ") " + demandChoices.get(i);
+                    if (i == demandChoices.size() - 2) {
+                        dmds += " or ";
+                    } else if (i < demandChoices.size() - 2) {
+                        dmds += ", ";
+                    }
                 }
+                responseVariables.put(demandsSlot, dmds);
                 break;
 
         }
@@ -199,7 +208,7 @@ public class InteractiveHandler extends Handler {
 
     }
 
-    public static void finalizeRequest(Dialogue dialogue) {
+    public void finalizeRequest(Dialogue dialogue) {
 
         String addressConfirm = "";
         String demand = "";
@@ -213,7 +222,7 @@ public class InteractiveHandler extends Handler {
         if (demand.equals("")) {
             dialogue.pushFocus(InteractiveHandler.aWhatHelp);
             dialogue.pushFocus(InteractiveHandler.qWhatHelp);
-            dialogue.setChoices(Arrays.asList(demands));
+            dialogue.setChoices(demandChoices);
         }
         if (addressConfirm.equals("")) {
             dialogue.pushFocus(InteractiveHandler.aLocationConfirm);
@@ -225,6 +234,7 @@ public class InteractiveHandler extends Handler {
         if (!dialogue.getUserData().isLocationDataPresent()) {
             dialogue.pushFocus(InteractiveHandler.aLocation);
             dialogue.pushFocus(InteractiveHandler.qLocation);
+            return;
         }
 
         double lat = dialogue.getUserData().getLatitude();

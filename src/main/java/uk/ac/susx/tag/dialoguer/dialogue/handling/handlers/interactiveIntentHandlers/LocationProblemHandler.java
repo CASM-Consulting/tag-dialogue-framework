@@ -31,7 +31,6 @@ public class LocationProblemHandler implements Handler.ProblemHandler {
         if (intent != null) {
             Collection<Intent.Slot> location = intent.getSlotByType(InteractiveHandler.locationSlot);
             String locationStr = location.iterator().next().value;
-            //TODO: Validate location and determine whether it is specific enough
             dialogue.appendToWorkingMemory("location_given", locationStr + ", United Kingdom");
 
             NominatimAPIWrapper.NomResult results[] = nom.queryAPI(locationStr + ", United Kingdom", 100, 0, 1);//For now assume we are in UK
@@ -50,7 +49,7 @@ public class LocationProblemHandler implements Handler.ProblemHandler {
 
             //TODO: Handle this better than taking straight first result
             NominatimAPIWrapper.NomResult loc = results[0];
-            dialogue.appendToWorkingMemory("location_processed", loc.display_name);
+            dialogue.putToWorkingMemory("location_processed", loc.display_name);
             dialogue.putToWorkingMemory(InteractiveHandler.addressConfirmFlag, "");
             if (!loc.address.containsKey("house_number")) {
                 dialogue.pushFocus(InteractiveHandler.aLandmarks); //Quickly stating landmark might be easier if we need only house number
@@ -58,13 +57,12 @@ public class LocationProblemHandler implements Handler.ProblemHandler {
                 return;
             }
 
-            //We should have everything needed in terms of address
-            dialogue.pushFocus(InteractiveHandler.aWhatHelp);
-            dialogue.pushFocus(InteractiveHandler.qWhatHelp);
+            ((InteractiveHandler)resource).finalizeRequest(dialogue);
         }
         else {
             dialogue.appendToWorkingMemory("location_processed", "United Kingdom");
             intent = intents.stream().filter(i->i.isName(InteractiveHandler.locationUnknownIntent)).findFirst().orElse(null);
+            //GPS is MUST if you dont know the city
             dialogue.pushFocus(InteractiveHandler.aEnableGps);
             dialogue.pushFocus(InteractiveHandler.qEnableGps);
         }

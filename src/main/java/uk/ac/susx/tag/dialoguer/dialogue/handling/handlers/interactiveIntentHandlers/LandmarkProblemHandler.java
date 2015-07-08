@@ -16,7 +16,7 @@ public class LandmarkProblemHandler implements Handler.ProblemHandler {
     NominatimAPIWrapper nom = new NominatimAPIWrapper();
     List<String> landmarks = new ArrayList<>();
 
-    private static final int maxDiamter = 500;
+    private static final int maxDiamter = 200;
 
     @Override
     public boolean isInHandleableState(List<Intent> intents, Dialogue dialogue) {
@@ -27,6 +27,7 @@ public class LandmarkProblemHandler implements Handler.ProblemHandler {
         boolean intentmatch4 = intents.stream().filter(i->i.getName().equals(Intent.noChoice)).count()>0;
         boolean intentmatch5 = intents.stream().filter(i->i.getName().equals(Intent.nullChoice)).count()>0;
         boolean statematch = dialogue.peekTopFocus().equals(InteractiveHandler.aLandmarks);
+        statematch |= dialogue.peekTopFocus().equals(InteractiveHandler.aLeaveLandmark);
         return (intentmatch || intentmatch2 || intentmatch3 || intentmatch4 || intentmatch5) && statematch;
     }
 
@@ -34,29 +35,79 @@ public class LandmarkProblemHandler implements Handler.ProblemHandler {
     public void handle(List<Intent> intents, Dialogue dialogue, Object resource) {
         System.err.println("landmark intent handler fired");
         Intent intent = intents.stream().filter(i -> i.getSource().equals(InteractiveHandler.multichocieIntent)).filter(i->i.isName(Intent.choice)).findFirst().orElse(null);
-        if (intent != null) {
-            Iterator<Intent.Slot> it = intent.getSlotByType("choice").iterator();
-            while (it.hasNext()) {
-                int idx = Integer.parseInt(it.next().value);
-                landmarks.set(idx, null);
-            }
-            {
-                int i = landmarks.size();
-                while (i --> 0) {
-                    if (landmarks.get(i) == null) {
-                        landmarks.remove(i);
+        if (dialogue.peekTopFocus().equals(InteractiveHandler.aLandmarks)) {
+            if (intent != null) {
+                Iterator<Intent.Slot> it = intent.getSlotByType("choice").iterator();
+                while (it.hasNext()) {
+                    int idx = Integer.parseInt(it.next().value);
+                    landmarks.set(idx, null);
+                }
+                {
+                    int i = landmarks.size();
+                    while (i-- > 0) {
+                        if (landmarks.get(i) == null) {
+                            landmarks.remove(i);
+                        }
                     }
                 }
+                List<NominatimAPIWrapper.NomResult> instances[] = new List[landmarks.size()];
+                for (int i = 0; i < landmarks.size(); ++i) {
+                    NominatimAPIWrapper.NomResult results[] = nom.queryAPI(landmarks.get(i) + ", " + dialogue.getFromWorkingMemory("location_given"), 200, 0, 1);
+                    instances[i] = Arrays.asList(results);
+                }
+                List<List<NominatimAPIWrapper.NomResult>> areas = new ArrayList<>();
+                buildAreas(0, instances, areas);
+                dialogue.putToWorkingMemory("n_loc", Integer.toString(areas.size()));
+                dialogue.pushFocus(InteractiveHandler.qAddLandmarks);
+                dialogue.clearChoices();
+                return;
             }
-            List<NominatimAPIWrapper.NomResult> instances[] = new List[landmarks.size()];
-            for (int i = 0; i < landmarks.size(); ++i) {
-                NominatimAPIWrapper.NomResult results[] = nom.queryAPI(landmarks.get(i) + ", " + dialogue.getFromWorkingMemory("location_given"), 200, 0, 1);
-                instances[i] = Arrays.asList(results);
+            intent = intents.stream().filter(i -> i.getSource().equals(InteractiveHandler.multichocieIntent)).filter(i -> i.isName(Intent.allChoice)).findFirst().orElse(null);
+            if (intent != null) {
+                landmarks.clear();
+                List<NominatimAPIWrapper.NomResult> instances[] = new List[landmarks.size()];
+                for (int i = 0; i < landmarks.size(); ++i) {
+                    NominatimAPIWrapper.NomResult results[] = nom.queryAPI(landmarks.get(i) + ", " + dialogue.getFromWorkingMemory("location_given"), 200, 0, 1);
+                    instances[i] = Arrays.asList(results);
+                }
+                dialogue.putToWorkingMemory("n_loc", "0");
+                dialogue.pushFocus(InteractiveHandler.qAddLandmarks);
+                dialogue.clearChoices();
+                return;
             }
-            List<List<NominatimAPIWrapper.NomResult>> areas = new ArrayList<>();
-            buildAreas(0, instances, areas);
-            dialogue.putToWorkingMemory("n_loc", Integer.toString(areas.size()));
-            dialogue.pushFocus(InteractiveHandler.qAddLandmarks);
+            intent = intents.stream().filter(i -> i.getSource().equals(InteractiveHandler.multichocieIntent)).filter(i -> i.isName(Intent.nullChoice)).findFirst().orElse(null);
+            if (intent != null) {
+                dialogue.pushFocus(InteractiveHandler.aLeaveLandmark);
+                dialogue.pushFocus(InteractiveHandler.qLeaveLandmark);
+                List<String> choices = new ArrayList<>();
+                choices.add("provide an address manually");
+                choices.add("use GPS on my device");
+                dialogue.setChoices(choices);
+                return;
+            }
+        }
+        intent = intents.stream().filter(i -> i.getSource().equals(InteractiveHandler.choiceIntent)).filter(i->i.isName(Intent.nullChoice)).findFirst().orElse(null);
+        if (intent != null) {
+            dialogue.pushFocus("apology");
+            return;
+        }
+        intent = intents.stream().filter(i -> i.getSource().equals(InteractiveHandler.choiceIntent)).filter(i->i.isName(Intent.choice)).findFirst().orElse(null);
+        if (intent != null) {
+            if (intent.getSlotByType("choice").iterator().next().value.equals("0")) {
+                dialogue.pushFocus(InteractiveHandler.aLocation);
+                dialogue.pushFocus(InteractiveHandler.qLocation);
+            }
+            if (intent.getSlotByType("choice").iterator().next().value.equals("1")) {
+                InteractiveHandler.handleGps(dialogue);
+            }
+            return;
+        }
+        intent = intents.stream().filter(i -> i.getSource().equals(InteractiveHandler.multichocieIntent)).filter(i->i.isName(Intent.noChoice)).findFirst().orElse(null);
+        if (intent == null) {
+            intent = intents.stream().filter(i -> i.getSource().equals(InteractiveHandler.choiceIntent)).filter(i->i.isName(Intent.noChoice)).findFirst().orElse(null);
+        }
+        if (intent != null) {
+            dialogue.pushFocus(InteractiveHandler.qChoiceRephrase);
             return;
         }
         intent = intents.stream().filter(i -> i.isName(InteractiveHandler.landmarkIntent)).findFirst().orElse(null);
@@ -81,7 +132,7 @@ public class LandmarkProblemHandler implements Handler.ProblemHandler {
             if (areas.size() == 1) { //Found precise position
                 dialogue.putToWorkingMemory("location_processed", areas.get(0).get(0).display_name);
                 dialogue.putToWorkingMemory(InteractiveHandler.addressConfirmFlag, "");
-                InteractiveHandler.finalizeRequest(dialogue);
+                ((InteractiveHandler)resource).finalizeRequest(dialogue);
                 return;
             }
             if (areas.size() == 0) {
@@ -97,49 +148,6 @@ public class LandmarkProblemHandler implements Handler.ProblemHandler {
             }
             dialogue.pushFocus(InteractiveHandler.qAddLandmarks);
         }
-        intent = intents.stream().filter(i -> i.getSource().equals(InteractiveHandler.multichocieIntent)).filter(i->i.isName(Intent.allChoice)).findFirst().orElse(null);
-        if (intent != null) {
-            landmarks.clear();
-            List<NominatimAPIWrapper.NomResult> instances[] = new List[landmarks.size()];
-            for (int i = 0; i < landmarks.size(); ++i) {
-                NominatimAPIWrapper.NomResult results[] = nom.queryAPI(landmarks.get(i) + ", " + dialogue.getFromWorkingMemory("location_given"), 200, 0, 1);
-                instances[i] = Arrays.asList(results);
-            }
-            List<List<NominatimAPIWrapper.NomResult>> areas = new ArrayList<>();
-            buildAreas(0, instances, areas);
-            dialogue.putToWorkingMemory("n_loc", Integer.toString(areas.size()));
-            dialogue.pushFocus(InteractiveHandler.qAddLandmarks);
-            return;
-        }
-        intent = intents.stream().filter(i->i.isName(Intent.nullChoice)).findFirst().orElse(null);
-        if (intent != null) {
-            dialogue.pushFocus(InteractiveHandler.qChoiceRephrase);
-        }
-
-        intent = intents.stream().filter(i -> i.getSource().equals(InteractiveHandler.multichocieIntent)).filter(i->i.isName(Intent.noChoice)).findFirst().orElse(null);
-        if (intent != null) {
-            dialogue.pushFocus(InteractiveHandler.aLeaveLandmark);
-            dialogue.pushFocus(InteractiveHandler.qLeaveLandmark);
-            List<String> choices  = new ArrayList<>();
-            choices.add("provide a address manually");
-            choices.add("use GPS on my device");
-            dialogue.setChoices(choices);
-        }
-        intent = intents.stream().filter(i -> i.getSource().equals(InteractiveHandler.choiceIntent)).filter(i->i.isName(Intent.noChoice)).findFirst().orElse(null);
-        if (intent != null) {
-            dialogue.pushFocus("apology");
-        }
-        intent = intents.stream().filter(i -> i.getSource().equals(InteractiveHandler.choiceIntent)).filter(i->i.isName(Intent.choice)).findFirst().orElse(null);
-        if (intent != null) {
-            if (intent.getSlotByType("choice").iterator().next().equals("0")) {
-                dialogue.pushFocus(InteractiveHandler.aLocation);
-                dialogue.pushFocus(InteractiveHandler.qLocation);
-            }
-            if (intent.getSlotByType("choice").iterator().next().equals("1")) {
-
-            }
-        }
-
     }
 
     private void buildAreas(int lmark, List<NominatimAPIWrapper.NomResult> instances[], List<List<NominatimAPIWrapper.NomResult>> areas) {

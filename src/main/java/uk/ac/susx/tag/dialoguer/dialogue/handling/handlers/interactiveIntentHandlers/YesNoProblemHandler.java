@@ -62,7 +62,7 @@ public class YesNoProblemHandler implements Handler.ProblemHandler {
         }  else if (dialogue.peekTopFocus().equals(InteractiveHandler.aLocationConfirm)) {
             if (dialogue.getFromWorkingMemory(InteractiveHandler.addressConfirmFlag).equals("Y")) {
                 dialogue.pushFocus(InteractiveHandler.demandSent);
-                InteractiveHandler.finalizeRequest(dialogue);
+                ((InteractiveHandler)resource).finalizeRequest(dialogue);
                 return;
             }
             if(intent.getName().equals("yes")) {
@@ -76,11 +76,12 @@ public class YesNoProblemHandler implements Handler.ProblemHandler {
         } else if (dialogue.peekTopFocus().equals(InteractiveHandler.aGpsLocConfirm)) {
             if(intent.getName().equals("yes")) {
                 dialogue.putToWorkingMemory(InteractiveHandler.addressConfirmFlag, "Y");
-                dialogue.pushFocus(InteractiveHandler.aWhatHelp);
-                dialogue.pushFocus(InteractiveHandler.qWhatHelp);
+                ((InteractiveHandler)resource).finalizeRequest(dialogue);
             } else if(intent.getName().equals("no")) {
                 dialogue.pushFocus(InteractiveHandler.aLocation);
                 dialogue.pushFocus(InteractiveHandler.qLocation);
+                dialogue.removeFromWorkingMemory("location_processed");
+                dialogue.removeFromWorkingMemory(InteractiveHandler.addressConfirmFlag);
             }
         }
     }
