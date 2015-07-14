@@ -146,9 +146,7 @@ public class InteractiveHandler extends Handler {
      * Pop the focus stack, add responseVariables which are required by this focus, generate the Response associated with this focus and responseVariables
      */
     public Response processStack(Dialogue d){
-        Map<String, String> responseVariables = new HashMap<>();
-        return new Response("q_location_again",responseVariables);
-        /*String focus=unknownResponse;
+        String focus=unknownResponse;
         if (!d.isEmptyFocusStack()) {
             focus = d.popTopFocus();
         }
@@ -206,8 +204,8 @@ public class InteractiveHandler extends Handler {
                 break;
 
         }
-        return new Response("q_location_again",responseVariables);
-*/
+        return new Response(focus,responseVariables);
+
     }
 
     public void finalizeRequest(Dialogue dialogue) {
