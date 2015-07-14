@@ -81,7 +81,7 @@ public class DialogueTrackerDemo extends DialogueTracker {
 
     private User getUserData(String dialogueId, String userName){
         if (!dialogueLocations.containsKey(dialogueId)){
-            dialogueLocations.put(dialogueId, clocktower.newCopy().setAttribute("name", userName));
+            dialogueLocations.put(dialogueId, new User());//clocktower.newCopy().setAttribute("name", userName)
         } return dialogueLocations.get(dialogueId);
     }
 

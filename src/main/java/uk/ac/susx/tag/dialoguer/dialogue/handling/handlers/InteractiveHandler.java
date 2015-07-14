@@ -204,6 +204,7 @@ public class InteractiveHandler extends Handler {
                 break;
 
         }
+        d.clearFocusStack();
         return new Response(focus,responseVariables);
 
     }
