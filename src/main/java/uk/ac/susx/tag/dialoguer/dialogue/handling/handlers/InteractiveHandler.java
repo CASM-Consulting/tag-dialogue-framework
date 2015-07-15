@@ -251,8 +251,8 @@ public class InteractiveHandler extends Handler {
         String addressName = "";
 
         if (!loc.address.keySet().iterator().next().equals("road")
-                && loc.address.keySet().iterator().next().equals("house_number")
-                && loc.address.keySet().iterator().next().equals("footway") ) {
+                && !loc.address.keySet().iterator().next().equals("house_number")
+                && !loc.address.keySet().iterator().next().equals("footway") ) {
             addressName += loc.address.values().iterator().next() + ", ";
         }
         if (loc.address.get("house_number") != null) {

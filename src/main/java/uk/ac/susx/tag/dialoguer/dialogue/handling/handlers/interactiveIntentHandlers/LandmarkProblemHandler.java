@@ -132,8 +132,8 @@ public class LandmarkProblemHandler implements Handler.ProblemHandler {
             if (areas.size() == 1) { //Found precise position
                 String addressName = "";
                 if (!areas.get(0).get(0).address.keySet().iterator().next().equals("road")
-                        && areas.get(0).get(0).address.keySet().iterator().next().equals("house_number")
-                        && areas.get(0).get(0).address.keySet().iterator().next().equals("footway") ) {
+                        && !areas.get(0).get(0).address.keySet().iterator().next().equals("house_number")
+                        && !areas.get(0).get(0).address.keySet().iterator().next().equals("footway") ) {
                     addressName += areas.get(0).get(0).address.values().iterator().next() + ", ";
                 }
                 if (areas.get(0).get(0).address.get("house_number") != null) {
