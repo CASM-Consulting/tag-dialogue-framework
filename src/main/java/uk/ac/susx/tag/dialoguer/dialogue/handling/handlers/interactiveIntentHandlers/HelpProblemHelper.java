@@ -23,11 +23,6 @@ public class HelpProblemHelper implements Handler.ProblemHandler {
     @Override
     public void handle(List<Intent> intents, Dialogue dialogue, Object resource) {
         System.err.println("help intent handler fired");
-        if (dialogue.getUserData().isLocationDataPresent()) {
-            InteractiveHandler.handleGps(dialogue);
-        } else {
-            dialogue.pushFocus(InteractiveHandler.aLocation);
-            dialogue.pushFocus(InteractiveHandler.qLocation);
-        }
+        InteractiveHandler.handleGps(dialogue);
     }
 }

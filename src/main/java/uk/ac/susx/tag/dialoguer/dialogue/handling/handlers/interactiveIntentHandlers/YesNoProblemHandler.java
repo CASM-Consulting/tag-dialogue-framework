@@ -46,6 +46,7 @@ public class YesNoProblemHandler implements Handler.ProblemHandler {
                 dialogue.pushFocus(InteractiveHandler.qWaitGps);
             }
             else if(intent.getName().equals("no")) {
+                dialogue.popTopFocus();
                 dialogue.pushFocus(InteractiveHandler.aGpsHelp);
                 dialogue.pushFocus(InteractiveHandler.qGpsHelp);
             }
@@ -55,8 +56,7 @@ public class YesNoProblemHandler implements Handler.ProblemHandler {
                 //TODO: Continue this branch
             }
             else if(intent.getName().equals("no")) {
-                dialogue.pushFocus(InteractiveHandler.aLandmarks);
-                dialogue.pushFocus(InteractiveHandler.qLandmarks);
+                dialogue.popTopFocus();
             }
 
         }  else if (dialogue.peekTopFocus().equals(InteractiveHandler.aLocationConfirm)) {
@@ -72,6 +72,8 @@ public class YesNoProblemHandler implements Handler.ProblemHandler {
                 dialogue.clearWorkingIntents();
                 dialogue.pushFocus(InteractiveHandler.aLocation);
                 dialogue.pushFocus(InteractiveHandler.qLocation);
+                dialogue.removeFromWorkingMemory("location_processed");
+                dialogue.removeFromWorkingMemory(InteractiveHandler.addressConfirmFlag);
             }
         } else if (dialogue.peekTopFocus().equals(InteractiveHandler.aGpsLocConfirm)) {
             if(intent.getName().equals("yes")) {

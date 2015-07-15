@@ -130,9 +130,32 @@ public class LandmarkProblemHandler implements Handler.ProblemHandler {
             buildAreas(0, instances, areas);
             dialogue.putToWorkingMemory("n_loc", Integer.toString(areas.size()));
             if (areas.size() == 1) { //Found precise position
-                dialogue.putToWorkingMemory("location_processed", areas.get(0).get(0).display_name);
+                String addressName = "";
+                if (!areas.get(0).get(0).address.keySet().iterator().next().equals("road")
+                        && areas.get(0).get(0).address.keySet().iterator().next().equals("house_number")
+                        && areas.get(0).get(0).address.keySet().iterator().next().equals("footway") ) {
+                    addressName += areas.get(0).get(0).address.values().iterator().next() + ", ";
+                }
+                if (areas.get(0).get(0).address.get("house_number") != null) {
+                    addressName += areas.get(0).get(0).address.get("house_number") + ", ";
+                }
+                if (areas.get(0).get(0).address.get("road") != null) {
+                    addressName += areas.get(0).get(0).address.get("road") + ", ";
+                } else if (areas.get(0).get(0).address.get("footway") != null) {
+                    addressName += areas.get(0).get(0).address.get("footway") + ", ";
+
+                }
+                if (areas.get(0).get(0).address.get("city") != null) {
+                    addressName += areas.get(0).get(0).address.get("city") + ", ";
+                } else if (areas.get(0).get(0).address.get("town") != null) {
+                    addressName += areas.get(0).get(0).address.get("town") + ", ";
+                }
+                addressName += areas.get(0).get(0).address.get("county") + ", ";
+                addressName += areas.get(0).get(0).address.get("postcode");
+                dialogue.putToWorkingMemory("location_processed", addressName);
                 dialogue.putToWorkingMemory(InteractiveHandler.addressConfirmFlag, "");
                 ((InteractiveHandler)resource).finalizeRequest(dialogue);
+                landmarks.clear();
                 return;
             }
             if (areas.size() == 0) {

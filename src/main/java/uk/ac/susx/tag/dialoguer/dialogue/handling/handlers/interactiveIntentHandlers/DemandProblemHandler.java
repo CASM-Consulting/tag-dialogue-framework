@@ -24,16 +24,22 @@ public class DemandProblemHandler {
             return false;
         }
         boolean ret = intents.stream().anyMatch(i-> ih.demands.containsKey(i.getName()));
-        ret |= dialogue.peekTopFocus().equals(InteractiveHandler.aWhatHelp) && intents.stream().filter(i -> i.getSource().equals(InteractiveHandler.choiceIntent)).filter(i->i.getName().equals(Intent.choice)).count()>0;
+        ret |= dialogue.peekTopFocus().equals(InteractiveHandler.aWhatHelp) && intents.stream().filter(i -> i.getSource().equals(InteractiveHandler.choiceIntent)).count()>0;
         return ret;
     }
 
     public void handle(List<Intent> intents, Dialogue dialogue, Object resource) {
         InteractiveHandler ih = (InteractiveHandler) resource;
         if (dialogue.peekTopFocus().equals(InteractiveHandler.aWhatHelp)) {
+
             Intent intent = intents.stream().filter(i -> i.getSource().equals(InteractiveHandler.choiceIntent)).filter(i->i.isName(Intent.nullChoice)).findFirst().orElse(null);
             if (intent != null) {
                 dialogue.putToWorkingMemory(InteractiveHandler.demandFlag, InteractiveHandler.demNothing);
+                ((InteractiveHandler)resource).finalizeRequest(dialogue);
+            }
+            intent = intents.stream().filter(i -> i.getSource().equals(InteractiveHandler.choiceIntent)).filter(i->i.isName(Intent.noChoice)).findFirst().orElse(null);
+            if (intent != null) {
+                dialogue.pushFocus(InteractiveHandler.qChoiceRephrase);
             }
             intent = intents.stream().filter(i -> i.getSource().equals(InteractiveHandler.choiceIntent)).filter(i->i.isName(Intent.choice)).findFirst().orElse(null);
             if (intent != null) {
@@ -44,6 +50,7 @@ public class DemandProblemHandler {
                         .map(Map.Entry::getKey)
                         .collect(Collectors.toSet()).iterator().next();
                 dialogue.putToWorkingMemory(InteractiveHandler.demandFlag, key);
+                ((InteractiveHandler)resource).finalizeRequest(dialogue);
             }
 
         }

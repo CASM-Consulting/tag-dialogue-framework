@@ -56,7 +56,7 @@ public class InteractiveHandler extends Handler {
     public static final String qGpsLocConfirm="q_confirm_gps_location"; //Asks user whether he wants help with tunring on the gps
     public static final String aGpsLocConfirm="a_confirm_gps_location";
     public static final String qWhatHelp ="q_what_help"; //Asks user whether he needs abulance called
-    public static final String aWhatHelp ="q_what_help";
+    public static final String aWhatHelp ="a_what_help";
     public static final String qLandmarks="q_landmarks";//Asks user whether he can see any landmarks such as KFC or other points of interest
     public static final String aLandmarks="a_landmarks";
     public static final String aLeaveLandmark="a_leave_landmark";
@@ -224,7 +224,7 @@ public class InteractiveHandler extends Handler {
             dialogue.pushFocus(InteractiveHandler.qWhatHelp);
             dialogue.setChoices(demandChoices);
         }
-        if (addressConfirm.equals("")) {
+        else if (addressConfirm.equals("")) {
             dialogue.pushFocus(InteractiveHandler.aLocationConfirm);
             dialogue.pushFocus(InteractiveHandler.qLocationConfirm);
         }
@@ -234,6 +234,8 @@ public class InteractiveHandler extends Handler {
         if (!dialogue.getUserData().isLocationDataPresent()) {
             dialogue.pushFocus(InteractiveHandler.aLocation);
             dialogue.pushFocus(InteractiveHandler.qLocation);
+            dialogue.pushFocus(InteractiveHandler.aEnableGps);
+            dialogue.pushFocus(InteractiveHandler.qEnableGps);
             return;
         }
 
@@ -242,7 +244,29 @@ public class InteractiveHandler extends Handler {
 
 
         NominatimAPIWrapper.NomResult loc = nom.queryReverseAPI(lat, lon);
-        dialogue.putToWorkingMemory("location_processed", loc.display_name);
+        String addressName = "";
+
+        if (!loc.address.keySet().iterator().next().equals("road")
+                && loc.address.keySet().iterator().next().equals("house_number")
+                && loc.address.keySet().iterator().next().equals("footway") ) {
+            addressName += loc.address.values().iterator().next() + ", ";
+        }
+        if (loc.address.get("house_number") != null) {
+            addressName += loc.address.get("house_number") + ", ";
+        }
+        if (loc.address.get("road") != null) {
+            addressName += loc.address.get("road") + ", ";
+        } else if (loc.address.get("footway") != null) {
+            addressName += loc.address.get("footway") + ", ";
+        }
+        if (loc.address.get("city") != null) {
+            addressName += loc.address.get("city") + ", ";
+        } else if (loc.address.get("town") != null) {
+            addressName += loc.address.get("town") + ", ";
+        }
+        addressName += loc.address.get("county") + ", ";
+        addressName += loc.address.get("postcode");
+        dialogue.putToWorkingMemory("location_processed", addressName);
         dialogue.putToWorkingMemory(InteractiveHandler.addressConfirmFlag, "");
 
         dialogue.pushFocus(InteractiveHandler.aGpsLocConfirm);

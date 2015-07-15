@@ -62,7 +62,7 @@
     },
     "q_what_help" : {
       "templates" : [
-        "Please select what service you require at your location: {demands}."
+        "Please select what service you require: {demands}."
       ],
       "requestingYesNo":"yes"
     },
