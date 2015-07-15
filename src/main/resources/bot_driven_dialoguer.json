@@ -98,7 +98,7 @@
     },
     "q_location_confirm" : {
       "templates" : [
-        "Is \"{address}\" the correct address to which an {demand} shoud be dispatched?"
+        "Is \"{address}\" the correct address to which {demand} shall be dispatched?"
       ],
       "requestingYesNo":"yes"
     },

@@ -189,6 +189,11 @@ public class InteractiveHandler extends Handler {
                 responseVariables.put(addressSlot, d.getFromWorkingMemory("location_processed"));
             case demandSent:
                 responseVariables.put(demandSlot, demands.get(d.getFromWorkingMemory(demandFlag)));
+                d.clearChoices();
+                d.clearFocusStack();
+                d.clearStates();
+                d.clearWorkingIntents();
+                d.clearWorkingMemory();
                 break;
             case qWhatHelp:
                 String dmds = "";
@@ -205,7 +210,6 @@ public class InteractiveHandler extends Handler {
 
         }
         return new Response(focus,responseVariables);
-
     }
 
     public void finalizeRequest(Dialogue dialogue) {
