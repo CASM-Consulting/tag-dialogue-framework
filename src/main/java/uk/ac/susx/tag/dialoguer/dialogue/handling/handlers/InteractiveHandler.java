@@ -247,7 +247,7 @@ public class InteractiveHandler extends Handler {
         double lon = dialogue.getUserData().getLongitude();
 
 
-        NominatimAPIWrapper.NomResult loc = nom.queryReverseAPI(lat, lon);
+        NominatimAPIWrapper.NomResult loc = nom.queryReverseAPI(lat, lon, 18, 1);
         String addressName = "";
 
         if (!loc.address.keySet().iterator().next().equals("road")

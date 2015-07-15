@@ -236,11 +236,14 @@ public class DialogueTracker implements AutoCloseable {
         if(args.length>2){
             locationstring=args[2];
         }
-        //List<Double> location = populateLocations().get(locationstring);
+        List<Double> location = populateLocations().get(locationstring);
         Map<String,String> attributes=new HashMap<>();
-        attributes.put("name",userId);
-        User userData = new User();//new User(location.get(0),location.get(1),location.get(2),attributes);
-        userData.setLocationDataPresence(false);
+        attributes.put("name", userId);
+        User userData = new User(location.get(0),location.get(1),location.get(2),attributes);
+        userData.setLocationDataPresence(true);
+        userData.setLatitude(50.875583);
+        userData.setLongitude(-0.0802493);
+        //userData.setLocationDataPresence(false);
 
         //set up scanner to get user input
         System.out.printf("Hello %s. I am the %s app.  What would you like to do?\n>", userData.getAttribute("name"),task);
