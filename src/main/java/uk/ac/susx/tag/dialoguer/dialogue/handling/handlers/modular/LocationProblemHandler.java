@@ -303,6 +303,7 @@ public class LocationProblemHandler implements Handler.ProblemHandler, PriorityF
             if (gpsProgress == Progress.inProgress) {
                 //Tell user to double check that he shares accurate location. If we get response with location intent we will use that
                 localFocusStack.push(new PriorityFocus(focus_recheck_geoloc, 3));
+                gpsProgress = Progress.notStarted;
                 return;
             } else if (dialogue.getUserData().isLocationDataPresent()) { //Bingo, we have GPS location, confirm it with the user.
 
