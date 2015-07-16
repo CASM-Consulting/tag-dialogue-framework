@@ -103,6 +103,7 @@ public class CrisisHandler extends Handler {
         switch(focus) {
             case focus_demand_sent:
                 responseVariables.put(dph.slot_out_demand, dph.demands.get(dph.getDemand()));
+                d.complete();
                 break;
         }
         return new Response(focus,responseVariables);
