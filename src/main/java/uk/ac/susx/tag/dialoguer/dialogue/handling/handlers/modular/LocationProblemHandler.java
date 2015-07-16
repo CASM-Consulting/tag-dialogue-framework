@@ -378,7 +378,7 @@ public class LocationProblemHandler implements Handler.ProblemHandler, PriorityF
     public Map<String, String> processResponse(String focus, Map<String, String> responseVariables, Dialogue d) {
         switch(focus) {
             case focus_location_confirm:
-                responseVariables.put(slot_out_location, getLocation());
+                responseVariables.put(slot_out_location, location);
             case focus_address_not_found:
                 d.setRequestingYesNo(true);
                 break;
@@ -405,6 +405,9 @@ public class LocationProblemHandler implements Handler.ProblemHandler, PriorityF
     }
 
     public String getLocation() {
+        if (!locationConfirmed) {
+            return "";
+        }
         return location;
     }
 
