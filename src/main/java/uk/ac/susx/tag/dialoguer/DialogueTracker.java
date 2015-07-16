@@ -221,7 +221,7 @@ public class DialogueTracker implements AutoCloseable {
         ///new NominatimAPIWrapper().queryAPI("HSBC,Manchester,United Kingdom", 200, 1, 1);
 
         // get task name from command line arguments
-        String task="bot_driven";
+        String task="crisis";
         if(args.length>0){
             task=args[0];
         }

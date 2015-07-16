@@ -1,0 +1,106 @@
+{
+  "handler" : {
+    "name" : "crisis_handler",
+    "path" : "crisis_handler.json"
+  },
+  "analysers" : [
+    {
+      "name" : "wit.ai",
+      "path" : "crisis_wit_config_demand_landmark_location.json"
+    },
+    {
+      "name" : "wit.ai",
+      "path" : "modular_location_no_gps.json"
+    },
+    {
+      "name" : "wit.ai",
+      "path" : "bot_driven_wit_config_landmark.json",
+      "sourceId" : "landmarks"
+    },
+    {
+      "name" : "simple_yes_no",
+      "sourceId" : "confirm_location"
+    },
+    {"name" : "out_of_wit_domain",
+      "path" : "modular_location_no_gps.json",
+      "sourceId" : "out_of_domain_no_gps"
+    },
+    {
+      "name" : "simple_choice",
+      "sourceId" : "demand_choice"
+    }
+  ],
+  "responseTemplates" : {
+    "recheck_geoloc" : {
+      "templates" : [
+        "Make sure your device is sharing accurate GPS coordinates. Alternatively, enter your address as accurately as you can."
+      ]
+    },
+    "location_confirm" : {
+      "templates" : [
+        "Is \"{location}\" address of your current location?"
+      ]
+    },
+    "enable_gps" : {
+      "templates" : [
+        "Please enable your GPS or tell me your address as accurately as possible."
+      ]
+    },
+    "chose_demand" : {
+      "templates" : [
+        "Please select what service you require: {demands}"
+      ]
+    },
+    "chose_demand_rephrase" : {
+      "templates" : [
+        "{acknowledgement}Please select your service from the list given earlier."
+      ]
+    },
+    "demand_sent" : {
+      "templates" : [
+        "{demand} has beed dispatched to your location. If you need further help or advice, tweet @HUMAN_OPERATOR"
+      ]
+    },
+    "address_not_found" : {
+      "templates" : [
+        "This or similar adress could not be found in our databases. Are you sure it is correct?"
+      ]
+    },
+    "location" : {
+      "templates" : [
+        "Please tell me your address as accurately as you can."
+      ]
+    },
+    "landmarks" : {
+      "templates" : [
+        "Can you see any landmarks at your position (such as McDonnalds or Starbucks)?"
+      ]
+    },
+    "landmarks_cleared" : {
+      "templates" : [
+        "Landmarks cleared. What landmarks can you see?"
+      ]
+    },
+    "landmarks_more" : {
+      "templates" : [
+        "Can you see any more landmarks? There are currently {n_loc} different locations you could be at given your info."
+      ]
+    },
+    "landmarks_different" : {
+      "templates" : [
+        "Landmark with name \"{landmark}\" could not be found, please try a different one."
+      ]
+    },
+    "landmarks_combo_problem" : {
+      "templates" : [
+        "Given combination of landmarks, no locations could be found. Do you want to re-enter your landmarks?"
+      ]
+    },
+    "unknown" : {
+      "templates" : [
+        "I don't know how to handle that request.",
+        "I don't understand.  Please try again."
+      ]
+    }
+  }
+}
