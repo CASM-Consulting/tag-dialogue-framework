@@ -5,6 +5,8 @@ import uk.ac.susx.tag.dialoguer.dialogue.components.Intent;
 import uk.ac.susx.tag.dialoguer.dialogue.components.Response;
 import uk.ac.susx.tag.dialoguer.dialogue.handling.factories.HandlerFactory;
 import uk.ac.susx.tag.dialoguer.dialogue.handling.handlers.modular.DemandProblemHandler;
+import uk.ac.susx.tag.dialoguer.dialogue.handling.handlers.modular.HelpMeProblemHandler;
+import uk.ac.susx.tag.dialoguer.dialogue.handling.handlers.modular.IdkProblemHandler;
 import uk.ac.susx.tag.dialoguer.dialogue.handling.handlers.modular.LocationProblemHandler;
 
 import java.util.ArrayList;
@@ -18,6 +20,7 @@ import java.util.Map;
  */
 public class CrisisHandler extends Handler {
 
+    public Map<String, String> helpTable;
     public Map<String, String> demands;
     public List<String> demandChoices;
 
@@ -27,6 +30,8 @@ public class CrisisHandler extends Handler {
 
     LocationProblemHandler lph = new LocationProblemHandler();
     DemandProblemHandler dph = new DemandProblemHandler();
+    IdkProblemHandler iph = new IdkProblemHandler();
+    HelpMeProblemHandler hph = new HelpMeProblemHandler();
 
     public CrisisHandler() {
 
@@ -38,18 +43,34 @@ public class CrisisHandler extends Handler {
         super.registerProblemHandler(lph);
         super.registerProblemHandler(dph);
         demands = config.demands;
+        helpTable = config.helpTable;
         demandChoices = new ArrayList<String>(demands.values());
         dph.demandChoices = demandChoices;
         dph.demands = demands;
+        hph.helpTable = helpTable;
     }
 
     @Override
     public Response handle(List<Intent> intents, Dialogue dialogue) {
+        if (intents.stream().filter(i->i.getText().equals("QUIT")).count()>0) {
+            dialogue.complete();
+            return null;
+        }
+        boolean handled = false;
+        if (hph.isInHandleableState(intents, dialogue)) {
+            hph.handle(intents, dialogue, null);
+            return processStack(dialogue);
+        }
         if (lph.isInHandleableState(intents, dialogue)) {
             lph.handle(intents, dialogue, null);
+            handled = true;
         }
         if (dph.isInHandleableState(intents, dialogue)) {
             dph.handle(intents, dialogue, null);
+            handled = true;
+        }
+        if (iph.isInHandleableState(intents, dialogue)) {
+            iph.handle(intents, dialogue, null);
         }
         return processStack(dialogue);
     }
@@ -79,6 +100,7 @@ public class CrisisHandler extends Handler {
      * Pop the focus stack, add responseVariables which are required by this focus, generate the Response associated with this focus and responseVariables
      */
     public Response processStack(Dialogue d){
+
         String focus = null;
         if (!d.isEmptyFocusStack()) {
             focus = d.popTopFocus();
@@ -105,6 +127,9 @@ public class CrisisHandler extends Handler {
                 responseVariables.put(dph.slot_out_demand, dph.demands.get(dph.getDemand()));
                 d.complete();
                 break;
+            case HelpMeProblemHandler.focus_help:
+                responseVariables.put("help", d.getFromWorkingMemory(HelpMeProblemHandler.help_string));
+
         }
         return new Response(focus,responseVariables);
     }

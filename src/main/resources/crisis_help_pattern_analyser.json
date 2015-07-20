@@ -1,0 +1,4 @@
+{
+  "regex": "(help|dont understand|don't understand|do not understand|what do you want|i dont know|i do not know| i don't know)",
+  "intentName": "get_help"
+}

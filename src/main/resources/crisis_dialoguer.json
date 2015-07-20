@@ -28,6 +28,11 @@
     {
       "name" : "simple_choice",
       "sourceId" : "demand_choice"
+    },
+    {
+      "name" : "pattern_finder",
+      "path" : "crisis_help_pattern_analyser.json",
+      "sourceId" : "get_help"
     }
   ],
   "responseTemplates" : {
@@ -94,6 +99,11 @@
     "landmarks_combo_problem" : {
       "templates" : [
         "Given combination of landmarks, no locations could be found. Do you want to re-enter your landmarks?"
+      ]
+    },
+    "give_help" : {
+      "templates" : [
+        "{help}"
       ]
     },
     "unknown" : {

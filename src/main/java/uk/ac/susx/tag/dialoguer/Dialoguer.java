@@ -402,7 +402,7 @@ public class Dialoguer implements AutoCloseable {
             // Get the template
             ResponseTemplate template = responseTemplates.get(r.getResponseName());
             //System.err.println(template.toString());
-            dialogue.addNewSystemMessage(r.fillTemplate(template.getRandomTemplateExample()));
+            dialogue.addNewSystemMessage(r.fillTemplate(template.getRandomTemplateExample()), r.getResponseName());
 
             if (template.areNewStates())
                 dialogue.setStates(template.newStates);
@@ -411,13 +411,13 @@ public class Dialoguer implements AutoCloseable {
         }
         // Otherwise check for default response templates
         else if (r.getResponseName().equals(Response.defaultConfirmCancelResponseId)) {
-            dialogue.addNewSystemMessage(r.fillTemplate("Cancelled. Thank you!"));
+            dialogue.addNewSystemMessage(r.fillTemplate("Cancelled. Thank you!"), r.getResponseName());
         } else if (r.getResponseName().equals(Response.defaultCompletionResponseId)) {
-            dialogue.addNewSystemMessage(r.fillTemplate("Thanks, goodbye!"));
+            dialogue.addNewSystemMessage(r.fillTemplate("Thanks, goodbye!"), r.getResponseName());
         } else if (r.getResponseName().equals(Response.defaultAutoQueryResponseId)) {
-            dialogue.addNewSystemMessage(r.fillTemplate("Please specify {query}."));
+            dialogue.addNewSystemMessage(r.fillTemplate("Please specify {query}."), r.getResponseName());
         } else if (r.getResponseName().equals(Response.defaultUnableToProcessResponseId)) {
-            dialogue.addNewSystemMessage(r.fillTemplate("I'm sorry; I don't understand."));
+            dialogue.addNewSystemMessage(r.fillTemplate("I'm sorry; I don't understand."), r.getResponseName());
         }
         //Otherwise give up
         else throw new DialoguerException("No response template found for this response name: " + r.getResponseName());

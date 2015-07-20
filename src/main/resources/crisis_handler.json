@@ -7,5 +7,20 @@
     "demand_kittens" : "Kitten",
     "demands_pm" : "Prime Minister",
     "demands_luck" : "Good Luck"
+  },
+  "helpTable" : {
+    "location" : "Give me your address as accurately as you can, such as \"8 Oxford Street, London, W1C 2QQ\", \"Kings Rd, London\" or \"London\".",
+    "address_not_found" : "The provided address could not be found in my database, make sure it is correct. If wrong location is provided, help might not arrive.",
+    "q_enable_gps" : "If your device has GPS, I can get your location that way. On most devices you need to enable GPS in settings and in the Twitter application.",
+    "location_confirm" : "Tell me whether the address could be correct or not.",
+    "enable_gps" : "Your GPS is not enabled, please enable it if you can (usually in Settings and the Twitter app) or provide me with address of your location.",
+    "chose_demand" : "Chose one of the provided options. You can do so by telling me the number of the request or name of the request itself.",
+    "chose_demand_rephrase" : "Chose one of the provided options. You can do so by telling me the number of the request or name of the request itself.",
+    "landmarks" : "Find any significant landmarks or stores around you. This well help in pinpointing your location.",
+    "landmarks_cleared" : "Find any significant landmarks or stores around you. This well help in pinpointing your location.",
+    "landmarks_more" : "Find any significant landmarks or stores around you. This well help in pinpointing your location.",
+    "landmarks_different" : "Such landmark could not be found, make sure it is correct, does not contain any typos and try again.",
+    "demands_luck" : "Combination of there landmarks could not be found in our database. You can try again if you like.",
+    "give_help" : "There is no more help I can provide you with, sorry. You have to fulfill my previous request."
   }
 }
