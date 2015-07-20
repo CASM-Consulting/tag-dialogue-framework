@@ -17,16 +17,25 @@ package uk.ac.susx.tag.dialoguer.dialogue.components;
 public class Message {
 
     private String text;
+    private String responseName;
     private User userData;
+
+    public Message(String text, String responseName){
+        this.text = text;
+        this.userData = null;
+        this.responseName = responseName;
+    }
 
     public Message(String text){
         this.text = text;
         this.userData = null;
+        this.responseName = null;
     }
 
     public Message(String text, User userData) {
         this.text = text;
         this.userData = userData;
+        this.responseName = null;
     }
 
     public String getText() {
@@ -44,4 +53,6 @@ public class Message {
     public boolean isSystemMessage(){
         return !isUserMessage();
     }
+
+    public String getResponseName() { return responseName; };
 }

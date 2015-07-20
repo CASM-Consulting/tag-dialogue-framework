@@ -185,8 +185,8 @@ public class Dialogue {
         history.add(new Message(message, user));
     }
 
-    public void addNewSystemMessage(String message) {
-        history.add(new Message(message));
+    public void addNewSystemMessage(String message, String responseName) {
+        history.add(new Message(message, responseName));
     }
 
     public Message getLatestUserMessage(){
