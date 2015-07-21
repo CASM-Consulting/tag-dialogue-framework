@@ -22,7 +22,7 @@ public class DemandProblemHandler implements Handler.ProblemHandler, PriorityFoc
     public List<String> demandChoices;
 
     //Slots
-    private final String slot_demand = "demand";
+    public final String slot_demand = "demand";
 
     //Slots for outputs
     public final static String slot_out_demands = "demands";
@@ -42,7 +42,7 @@ public class DemandProblemHandler implements Handler.ProblemHandler, PriorityFoc
     private int choiceMsgNo = -1;
 
     //Demands
-    private  String demand_unknown = "demand_unknown";
+    public  String demand_unknown = "demand_unknown";
 
 
     @Override

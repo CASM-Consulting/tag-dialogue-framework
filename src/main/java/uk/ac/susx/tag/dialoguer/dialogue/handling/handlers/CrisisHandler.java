@@ -56,11 +56,16 @@ public class CrisisHandler extends Handler {
             dialogue.complete();
             return null;
         }
-        boolean handled = false;
-        if (hph.isInHandleableState(intents, dialogue)) {
+
+        boolean loc = false;
+        loc |= intents.stream().filter(i->i.getSlots().containsKey(lph.slot_location)).count()>0;
+        loc |= intents.stream().filter(i->i.getSlots().containsKey(lph.slot_landmark)).count()>0;
+        loc |= intents.stream().filter(i->i.getSlots().containsKey(dph.slot_demand)).count()>0 && intents.stream().filter(i->i.getSlots().containsValue(dph.demand_unknown)).count()==0;
+        if (!loc && hph.isInHandleableState(intents, dialogue)) {
             hph.handle(intents, dialogue, null);
             return processStack(dialogue);
         }
+        boolean handled = false;
         if (lph.isInHandleableState(intents, dialogue)) {
             lph.handle(intents, dialogue, null);
             handled = true;
@@ -69,9 +74,10 @@ public class CrisisHandler extends Handler {
             dph.handle(intents, dialogue, null);
             handled = true;
         }
+        /*
         if (iph.isInHandleableState(intents, dialogue)) {
             iph.handle(intents, dialogue, null);
-        }
+        }*/
         return processStack(dialogue);
     }
 

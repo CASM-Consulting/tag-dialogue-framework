@@ -42,9 +42,9 @@ public class LocationProblemHandler implements Handler.ProblemHandler, PriorityF
     private final String source_landmarks= "landmarks";
 
     //Slots
-    private final String slot_location = "location";
-    private final String slot_landmark = "landmark";
-    private final String slot_place = "place"; //TODO: merge these two
+    public final String slot_location = "location";
+    public final String slot_landmark = "landmark";
+    public final String slot_place = "place";
 
     //Slots for outputs
     public final static String slot_out_location = "location";
@@ -127,7 +127,11 @@ public class LocationProblemHandler implements Handler.ProblemHandler, PriorityF
         }
 
         if (slLm != null && dialogue.getCurrentMessageNumber() == landmarksAskedMsgNo + 1) {
-
+            Intent intConfirm = intents.stream().filter(i -> i.getSource().equals(source_confirm)).findFirst().orElse(null);
+            if (intConfirm.getName().equals("no")) {
+                localFocusStack.push(new PriorityFocus(focus_location_confirm, 3));
+                return;
+            }
             if (!validateLandmark(slLm.value)) {
                 landmarkBad = slLm.value;
                 localFocusStack.add(new PriorityFocus(focus_landmarks_different, 3));
@@ -387,10 +391,12 @@ public class LocationProblemHandler implements Handler.ProblemHandler, PriorityF
             case focus_landmarks_cleared:
             case focus_landmarks:
                 landmarksAskedMsgNo = d.getCurrentMessageNumber() + 1;
+                d.setRequestingYesNo(true);
                 break;
             case focus_landmarks_different:
                 responseVariables.put(slot_out_landmark, landmarkBad);
                 landmarksAskedMsgNo = d.getCurrentMessageNumber() + 1;
+                d.setRequestingYesNo(true);
                 break;
             case focus_landmarks_combo_problem:
                 d.setRequestingYesNo(true);
