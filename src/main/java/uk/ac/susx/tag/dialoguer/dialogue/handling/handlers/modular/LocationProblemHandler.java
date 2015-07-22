@@ -169,6 +169,8 @@ public class LocationProblemHandler implements Handler.ProblemHandler, PriorityF
                     location += res.address.get("city") + ", ";
                 } else if (res.address.get("town") != null) {
                     location += res.address.get("town") + ", ";
+                } else if (res.address.get("village") != null) {
+                    location += res.address.get("village") + ", ";
                 }
                 location += res.address.get("county");
                 if (res.address.get("postcode") != null) {
@@ -337,6 +339,8 @@ public class LocationProblemHandler implements Handler.ProblemHandler, PriorityF
                     location += loc.address.get("city") + ", ";
                 } else if (loc.address.get("town") != null) {
                     location += loc.address.get("town") + ", ";
+                } else if (loc.address.get("village") != null) {
+                    location += loc.address.get("village") + ", ";
                 }
                 location += loc.address.get("county") + ", ";
                 location += loc.address.get("postcode");

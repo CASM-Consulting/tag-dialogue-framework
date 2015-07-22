@@ -33,6 +33,37 @@ public class NominatimAPIWrapper implements AutoCloseable {
     }
 
 
+    public NomResult[] queryAPI(String query, String city, String country) {
+        WebTarget target = client.target(nominatimApi);
+
+        target = target
+                .queryParam("q", query)
+                .queryParam("city", city)
+                .queryParam("country", country)
+                .queryParam("email", clientEmail)
+                .queryParam("format", "json");
+        int limit = 300;
+        target = target.queryParam("limit", limit);
+        target = target.queryParam("polygon_geojson", 1);
+        target = target.queryParam("addressdetails", 1);
+
+        String s = target.request()
+                .header("Accept", "application/json")
+                .buildGet().invoke(String.class);
+
+        NomResult results[] = new Gson().fromJson(s, NomResult[].class);
+        if (limit > 50 && results.length == 50) {
+            //Possibility of more results
+            String exclude = "";
+            for (NomResult nr : results) {
+                exclude += nr.place_id + ",";
+            }
+            exclude = exclude.substring(0, exclude.length()-1);
+            return getMore(query, 1, 1, exclude, results, limit - 50);
+        }
+        return results;
+    }
+
     public NomResult[] queryAPI(String query) {
         return queryAPI(query, -1);
     }
@@ -111,7 +142,42 @@ public class NominatimAPIWrapper implements AutoCloseable {
         }
         return results;
     }
+    private NomResult[] getMore(String query, String city, String country, String foundId, NomResult results[], int remainingLimit) {
+        WebTarget target = client.target(nominatimApi);
 
+
+        target = target
+                .queryParam("q", query)
+                .queryParam("city", city)
+                .queryParam("country", country)
+                .queryParam("email", clientEmail)
+                .queryParam("format", "json")
+                .queryParam("exclude_place_ids", foundId)
+                .queryParam("limit", remainingLimit);
+        target = target.queryParam("polygon_geojson", 1);
+        target = target.queryParam("addressdetails", 1);
+
+        String s = target.request()
+                .header("Accept", "application/json")
+                .buildGet().invoke(String.class);
+
+        NomResult results2[] = new Gson().fromJson(s, NomResult[].class);
+        if (results2.length > 0) {
+            int aLen = results.length;
+            int bLen = results2.length;
+            NomResult[] c= new NomResult[aLen+bLen];
+            System.arraycopy(results, 0, c, 0, aLen);
+            System.arraycopy(results2, 0, c, aLen, bLen);
+            if (remainingLimit > 50 && results2.length == 50) {
+                for (NomResult nr : results2) {
+                    foundId += "," + nr.place_id;
+                }
+                return getMore(query, city, country, foundId, c, remainingLimit - 50);
+            }
+            return c;
+        }
+        return results;
+    }
 
     public NomResult queryReverseAPI(double lat, double lon) {
         return queryReverseAPI(lat, lon, 18);
