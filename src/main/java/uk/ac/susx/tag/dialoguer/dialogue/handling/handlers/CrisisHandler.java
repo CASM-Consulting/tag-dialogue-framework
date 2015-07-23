@@ -37,13 +37,9 @@ public class CrisisHandler extends Handler {
 
     public CrisisHandler() {
 
-        super.registerProblemHandler(lph);
-        super.registerProblemHandler(dph);
     }
 
     public CrisisHandler(CrisisHandler config) {
-        super.registerProblemHandler(lph);
-        super.registerProblemHandler(dph);
         demands = config.demands;
         helpTable = config.helpTable;
         demandChoices = new ArrayList<String>(demands.values());
@@ -122,8 +118,11 @@ public class CrisisHandler extends Handler {
     @Override
     public Dialogue getNewDialogue(String dialogueId) {
         DialogueTracker.logger.log(Level.INFO, "NEW");
-        super.registerProblemHandler(lph);
-        super.registerProblemHandler(dph);
+
+        lph = new LocationProblemHandler();
+        dph = new DemandProblemHandler();
+        iph = new IdkProblemHandler();
+        hph = new HelpMeProblemHandler();
         demandChoices = new ArrayList<String>(demands.values());
         dph.demandChoices = demandChoices;
         dph.demands = demands;
