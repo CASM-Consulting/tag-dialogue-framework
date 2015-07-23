@@ -44,7 +44,7 @@ public class LocationProblemHandler implements Handler.ProblemHandler, PriorityF
     //Slots
     public final String slot_location = "location";
     public final String slot_landmark = "landmark";
-    public final String slot_place = "place";
+    public final String slot_place = "place"; //TODO: Same nameawrr
 
     //Slots for outputs
     public final static String slot_out_location = "location";

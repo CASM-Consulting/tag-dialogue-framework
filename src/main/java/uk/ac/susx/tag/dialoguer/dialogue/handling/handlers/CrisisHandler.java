@@ -60,33 +60,35 @@ public class CrisisHandler extends Handler {
         Intent intLoc = intents.stream().filter(i -> i.getSlots().containsKey(lph.slot_location)).findFirst().orElse(null);
         //Intent.Slot slLoc = (intLoc == null) ? null : c.iterator().next();
 
-        for (Iterator<Intent.Slot> it = intLoc.getSlotByType(lph.slot_location).iterator(); it.hasNext();) {
-            Intent.Slot slLoc = it.next();
-            if (slLoc != null && !slLoc.value.trim().contains(",") && !slLoc.value.trim().contains(" ")) {
-                NominatimAPIWrapper.NomResult[] results = nom.queryAPI("", slLoc.value, "United Kingdom");
-                boolean found = false;
-                for (NominatimAPIWrapper.NomResult r : results) {
+        if (intLoc != null) {
+            for (Iterator<Intent.Slot> it = intLoc.getSlotByType(lph.slot_location).iterator(); it.hasNext(); ) {
+                Intent.Slot slLoc = it.next();
+                if (slLoc != null && !slLoc.value.trim().contains(",") && !slLoc.value.trim().contains(" ")) {
+                    NominatimAPIWrapper.NomResult[] results = nom.queryAPI("", slLoc.value, "United Kingdom");
+                    boolean found = false;
+                    for (NominatimAPIWrapper.NomResult r : results) {
 
-                    if (r.address.get("city") != null) {
-                        if (r.address.get("city").toLowerCase().equals(slLoc.value.trim().toLowerCase())) {
-                            found = true;
-                            break;
-                        }
-                    } else if (r.address.get("town") != null) {
-                        if (r.address.get("town").toLowerCase().equals(slLoc.value.trim().toLowerCase())) {
-                            found = true;
-                            break;
-                        }
-                    } else if (r.address.get("village") != null) {
-                        if (r.address.get("village").toLowerCase().equals(slLoc.value.trim().toLowerCase())) {
-                            found = true;
-                            break;
+                        if (r.address.get("city") != null) {
+                            if (r.address.get("city").toLowerCase().equals(slLoc.value.trim().toLowerCase())) {
+                                found = true;
+                                break;
+                            }
+                        } else if (r.address.get("town") != null) {
+                            if (r.address.get("town").toLowerCase().equals(slLoc.value.trim().toLowerCase())) {
+                                found = true;
+                                break;
+                            }
+                        } else if (r.address.get("village") != null) {
+                            if (r.address.get("village").toLowerCase().equals(slLoc.value.trim().toLowerCase())) {
+                                found = true;
+                                break;
+                            }
                         }
                     }
-                }
-                if (!found) {
-                    it.remove();
-                    //intLoc.getSlots().remove(lph.slot_location, slLoc);
+                    if (!found) {
+                        it.remove();
+                        //intLoc.getSlots().remove(lph.slot_location, slLoc);
+                    }
                 }
             }
         }
