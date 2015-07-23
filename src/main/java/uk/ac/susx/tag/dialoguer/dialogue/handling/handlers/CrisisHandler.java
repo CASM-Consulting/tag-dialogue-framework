@@ -166,6 +166,7 @@ public class CrisisHandler extends Handler {
         Map<String, String> responseVariables = new HashMap<>();
         dph.processResponse(focus, responseVariables, d);
         lph.processResponse(focus, responseVariables, d);
+        DialogueTracker.logger.log(Level.INFO, "Nothing");
         switch(focus) {
             case focus_demand_sent:
                 responseVariables.put(dph.slot_out_demand, dph.demands.get(dph.getDemand()));
