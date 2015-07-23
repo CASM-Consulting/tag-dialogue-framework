@@ -44,7 +44,7 @@ public class DialogueUtils {
     public static List<String> splitByLengthOnTokensWithRandomDigits(String text, String userName){
 
         return splitByLengthOnTokens(text, 135, userName).stream()
-                .map(s -> s + " " + RandomStringUtils.randomAlphanumeric(4))
+                .map(s -> RandomStringUtils.randomAlphanumeric(4) + " " + s)
                 .collect(Collectors.toList());
     }
 
