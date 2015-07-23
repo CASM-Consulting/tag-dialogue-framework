@@ -121,6 +121,13 @@ public class CrisisHandler extends Handler {
 
     @Override
     public Dialogue getNewDialogue(String dialogueId) {
+        DialogueTracker.logger.log(Level.INFO, "NEW");
+        super.registerProblemHandler(lph);
+        super.registerProblemHandler(dph);
+        demandChoices = new ArrayList<String>(demands.values());
+        dph.demandChoices = demandChoices;
+        dph.demands = demands;
+        hph.helpTable = helpTable;
         Dialogue d = new Dialogue(dialogueId);
         return d;
     }
