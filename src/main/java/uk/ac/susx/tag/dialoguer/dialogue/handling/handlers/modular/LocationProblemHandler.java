@@ -387,9 +387,6 @@ public class LocationProblemHandler implements Handler.ProblemHandler, PriorityF
         switch(focus) {
             case focus_location_confirm:
                 responseVariables.put(slot_out_location, location);
-            case focus_address_not_found:
-                d.setRequestingYesNo(true);
-                break;
             case focus_landmarks_more:
                 responseVariables.put(slot_out_num_locations, Integer.toString(locationsPossible));
             case focus_landmarks_cleared:

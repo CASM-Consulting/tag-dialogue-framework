@@ -8,7 +8,7 @@
   },
   "helpTable" : {
     "location" : "Give me your address as accurately as you can, such as \"8 Oxford Street, London, W1C 2QQ\", \"Kings Rd, London\" or \"London\".",
-    "address_not_found" : "The provided address could not be found in my database, make sure it is correct. If wrong location is provided, help might not arrive.",
+    "address_not_found" : "The provided address could not be found in my database, perhaps you made a typo? If you keep having problems, try address of place nearby.",
     "q_enable_gps" : "If your device has GPS, I can get your location that way. On most devices you need to enable GPS in settings and in the Twitter application.",
     "location_confirm" : "Tell me whether the address could be correct or not.",
     "enable_gps" : "Your GPS is not enabled, please enable it if you can (usually in Settings and the Twitter app) or provide me with address of your location.",

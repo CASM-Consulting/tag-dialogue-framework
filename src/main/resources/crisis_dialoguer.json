@@ -63,12 +63,12 @@
     },
     "demand_sent" : {
       "templates" : [
-        "{demand} has beed dispatched to your location. If you need further help or advice, tweet @HUMAN_OPERATOR"
+        "{demand} has been dispatched to your location. If you need further help or advice, tweet @HUMAN_OPERATOR"
       ]
     },
     "address_not_found" : {
       "templates" : [
-        "This or similar adress could not be found in our databases. Are you sure it is correct?"
+        "This or similar address could not be found in our databases. Please make sure there is no typos or rephrase your address."
       ]
     },
     "location" : {
