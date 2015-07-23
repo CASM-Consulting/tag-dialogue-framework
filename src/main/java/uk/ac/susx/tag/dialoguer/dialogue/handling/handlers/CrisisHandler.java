@@ -1,5 +1,6 @@
 package uk.ac.susx.tag.dialoguer.dialogue.handling.handlers;
 
+import uk.ac.susx.tag.dialoguer.DialogueTracker;
 import uk.ac.susx.tag.dialoguer.dialogue.components.Dialogue;
 import uk.ac.susx.tag.dialoguer.dialogue.components.Intent;
 import uk.ac.susx.tag.dialoguer.dialogue.components.Response;
@@ -11,6 +12,7 @@ import uk.ac.susx.tag.dialoguer.dialogue.handling.handlers.modular.LocationProbl
 import uk.ac.susx.tag.dialoguer.knowledge.location.NominatimAPIWrapper;
 
 import java.util.*;
+import java.util.logging.Level;
 
 
 /**
@@ -168,6 +170,7 @@ public class CrisisHandler extends Handler {
             case focus_demand_sent:
                 responseVariables.put(dph.slot_out_demand, dph.demands.get(dph.getDemand()));
                 d.complete();
+                DialogueTracker.logger.log(Level.INFO, "BOOM");
                 break;
             case HelpMeProblemHandler.focus_help:
                 responseVariables.put("help", d.getFromWorkingMemory(HelpMeProblemHandler.help_string));
