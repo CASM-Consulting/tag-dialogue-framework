@@ -27,4 +27,12 @@ public class PriorityFocus {
     public static PriorityFocus nullFocus() {
         return  new PriorityFocus(null, Integer.MIN_VALUE);
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj.getClass() == PriorityFocus.class) {
+            return focus.equals(((PriorityFocus) obj).focus);
+        }
+        return super.equals(obj);
+    }
 }

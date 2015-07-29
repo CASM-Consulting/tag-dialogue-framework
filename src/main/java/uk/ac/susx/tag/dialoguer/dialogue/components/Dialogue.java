@@ -71,7 +71,7 @@ public class Dialogue {
 
     private Map<String, String> workingMemory; // Data about the current dialogue, e.g. partially filled slots that could be useful for subsequent intents
     private List<String> states;               // States the dialogue is actually IN. Think: all the states passed to a single Wit.Ai query
-    private List<String> questionFocusStack;   // IDs/Names of questions that the Handler wants to queue for asking the user
+    private FocusStackManager focStackMan;     // Managemennt of quesiton focuses
 
     private List<String> choices;     // Choices currently presented to the user (remember to clear it in the handler if you no longer expect to user to answer them)
     private boolean requestingYesNo;  // Whether or not the system is currently requesting a Yes/No answer
@@ -90,7 +90,7 @@ public class Dialogue {
         autoQueryTracker = new AutoQueryTracker();
         workingMemory = new HashMap<>();
         states = new ArrayList<>();
-        questionFocusStack = new ArrayList<>();
+        focStackMan = new FocusStackManager();
         choices = new ArrayList<>();
         requestingYesNo = false;
         history = new ArrayList<>();
@@ -109,24 +109,39 @@ public class Dialogue {
  ***********************************************/
     public List<Intent> getWorkingIntents() { return intents; }
     public Intent peekTopIntent() {return intents.get(intents.size()-1);}
-    public Intent popTopIntent() {return intents.remove(intents.size()-1);}
+    public Intent popTopIntent() {return intents.remove(intents.size() - 1);}
     public void addToWorkingIntents(Intent i) { intents.add(i); }
     public void addToWorkingIntents(List<Intent> intents){ this.intents.addAll(intents); }
     public void clearWorkingIntents() { intents.clear(); }
     public void replaceWorkingIntents(List<Intent> intents){ this.intents = intents; }
     public boolean isEmptyWorkingIntents() { return getWorkingIntents().isEmpty();}
 
-/***********************************************
- * Question focus stack
- ***********************************************/
+    /***********************************************
+     * Question focus stack
+     ***********************************************/
 
-    public String peekTopFocus() { return questionFocusStack.get(questionFocusStack.size()-1);}
-    public String popTopFocus() { return questionFocusStack.remove(questionFocusStack.size()-1);}
-    public void pushFocus(String newTopFocus) { questionFocusStack.add(newTopFocus); }
-    public boolean isFocusPresent(String focus) { return questionFocusStack.contains(focus); }
-    public void removeFocus(String focus) { questionFocusStack.remove(focus); }
-    public void clearFocusStack() { questionFocusStack.clear();}
-    public boolean isEmptyFocusStack() {return questionFocusStack.size()==0;}
+    public String peekTopFocus() { return focStackMan.peekTopFocus();}
+    public String popTopFocus() { return focStackMan.popTopFocus();}
+    public void pushFocus(String newTopFocus) { focStackMan.pushFocus(newTopFocus); }
+    public boolean isFocusPresent(String focus) { return focStackMan.isFocusPresent(focus); }
+    public void removeFocus(String focus) { focStackMan.getFocusStack().remove(focus); }
+    public void clearFocusStack() { focStackMan.clearFocusStack();}
+    public boolean isEmptyFocusStack() {return focStackMan.isEmptyFocusStack();}
+    public List<PriorityFocus> getFocusStack() { return focStackMan.getFocusStack(); }
+    public int createFocusStack() { return focStackMan.createFocusStack(); }
+
+    /***********************************************
+     * Auxiliary Question focus stacks
+     ***********************************************/
+
+    public String multiPeekTopFocus(int id) { return focStackMan.multiPeekTopFocus(id);}
+    public String multiPopTopFocus(int id) { return focStackMan.multiPopTopFocus(id);}
+    public void multiPushFocus(int id, String newTopFocus) { focStackMan.multiPushFocus(id, newTopFocus); }
+    public boolean multiIsFocusPresent(int id, String focus) { return focStackMan.multiIsFocusPresent(id, focus); }
+    public void multiRemoveFocus(int id, String focus) { focStackMan.multiRemoveFocus(id, focus); }
+    public void multiClearFocusStack(int id) { focStackMan.multiClearFocusStack(id);}
+    public boolean multiIsEmptyFocusStack(int id) {return focStackMan.multiIsEmptyFocusStack(id);}
+    public List<PriorityFocus> multiGetFocusStack(int id) { return focStackMan.getFocusStack(id); }
 
 /***********************************************
  * Choice / Confirmation management
