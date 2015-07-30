@@ -27,7 +27,8 @@ import java.util.stream.Collectors;
 public abstract class Handler implements AutoCloseable {
 
     private Map<String, IntentHandler> intentHandlers = new HashMap<>();
-    private List<ProblemHandler> problemHandlers = new ArrayList<>();
+    private Map<PHKey, ProblemHandler> problemHandlers = new HashMap<>();
+    private int phkeyCounter = 0;
 
 /********************************************************
  * Functionality to be implemented by subclasses
@@ -171,12 +172,23 @@ public abstract class Handler implements AutoCloseable {
          * Return the appropriate response for this state.
          */
         public void handle(List<Intent> intents, Dialogue dialogue, Object resource);
-//    @Deprecated
-//    public boolean subhandle(List<Intent> intents, Dialogue dialogue, Object resource);
+
+        /**
+         * Optional method providing the ability to access instance-specific focus stack using the key provided
+         */
+        public void registerStackKey(PHKey key);
+    }
+
+    public static class PHKey {
+        PHKey(String uid) {
+            this.uid = uid;
+        }
+
+        public final String uid;
     }
 
     protected void registerProblemHandler(ProblemHandler h) {
-        problemHandlers.add(h);
+        problemHandlers.put(new PHKey(h.getClass().getName() + "_" + phkeyCounter++), h);
     }
 
 //    protected Response applyFirstProblemHandlerOrNull(List<Intent> intents, Dialogue dialogue, Object resource){
@@ -195,7 +207,7 @@ public abstract class Handler implements AutoCloseable {
 //    }
 
     protected boolean useFirstProblemHandler(List<Intent> intents, Dialogue dialogue, Object resource){
-        ProblemHandler handler = problemHandlers.stream()
+        ProblemHandler handler = problemHandlers.values().stream()
                                 .filter(h -> h.isInHandleableState(intents, dialogue))
                                 .findFirst().orElse(null);
         if (handler != null) {
@@ -205,7 +217,7 @@ public abstract class Handler implements AutoCloseable {
     }
 
     protected boolean useApplicableProblemHandlers(List<Intent> intents, Dialogue dialogue, Object resource){
-        List<ProblemHandler> handlers = problemHandlers.stream()
+        List<ProblemHandler> handlers = problemHandlers.values().stream()
                 .filter(h -> h.isInHandleableState(intents, dialogue))
                 .collect(Collectors.toList());
 
