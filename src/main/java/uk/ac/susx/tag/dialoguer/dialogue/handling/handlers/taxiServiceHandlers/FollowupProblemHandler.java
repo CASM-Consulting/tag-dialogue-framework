@@ -1,11 +1,9 @@
 package uk.ac.susx.tag.dialoguer.dialogue.handling.handlers.taxiServiceHandlers;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import uk.ac.susx.tag.dialoguer.Dialoguer;
 import uk.ac.susx.tag.dialoguer.dialogue.components.Dialogue;
 import uk.ac.susx.tag.dialoguer.dialogue.components.Intent;
-import uk.ac.susx.tag.dialoguer.dialogue.components.Response;
 import uk.ac.susx.tag.dialoguer.dialogue.handling.handlers.Handler;
 import uk.ac.susx.tag.dialoguer.dialogue.handling.handlers.ProductSearchHandler;
 import uk.ac.susx.tag.dialoguer.dialogue.handling.handlers.TaxiServiceHandler;
@@ -79,6 +77,11 @@ public class FollowupProblemHandler implements Handler.ProblemHandler {
                 rejectEntity(followup,dialogue,accepting);
 
         }
+    }
+
+    @Override
+    public void registerStackKey(Handler.PHKey key) {
+
     }
 
     /**

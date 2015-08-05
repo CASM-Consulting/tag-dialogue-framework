@@ -42,5 +42,10 @@ public class HelpMeProblemHandler implements Handler.ProblemHandler {
             dialogue.putToWorkingMemory("help_string", "I do not know how to help you with my last request.");
         }
     }
+
+    @Override
+    public void registerStackKey(Handler.PHKey key) {
+
+    }
 }
 

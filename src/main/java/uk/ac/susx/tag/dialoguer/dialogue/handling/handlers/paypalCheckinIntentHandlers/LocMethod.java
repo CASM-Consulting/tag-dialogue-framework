@@ -5,7 +5,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import uk.ac.susx.tag.dialoguer.Dialoguer;
 import uk.ac.susx.tag.dialoguer.dialogue.components.Dialogue;
-import uk.ac.susx.tag.dialoguer.dialogue.components.Response;
 import uk.ac.susx.tag.dialoguer.dialogue.components.Intent;
 import uk.ac.susx.tag.dialoguer.dialogue.components.User;
 import uk.ac.susx.tag.dialoguer.dialogue.handling.handlers.Handler;
@@ -51,6 +50,11 @@ public class LocMethod implements Handler.ProblemHandler {
                 handleLocation(location.get(), d, resource);
             }
         }
+
+    }
+
+    @Override
+    public void registerStackKey(Handler.PHKey key) {
 
     }
 
@@ -149,7 +153,7 @@ public class LocMethod implements Handler.ProblemHandler {
                 if(m.getMerchantId().equals(d.getFromWorkingMemory("merchantId"))){
                     match=true;
                     if(d.isInWorkingMemory("accepting","no_choice")&&d.isRequestingYesNo()) {
-                        //d.putToWorkingMemory("accepting","yes"); //shouldn't upgrade this to a definite yes.
+                        //d.putIntToWorkingMemory("accepting","yes"); //shouldn't upgrade this to a definite yes.
                         d.pushFocus("confirm");
                     } else {
                         d.pushFocus("confirm_loc");

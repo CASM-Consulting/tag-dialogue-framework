@@ -41,6 +41,10 @@ public class RejectMethod implements Handler.ProblemHandler {
         LocMethod.processMerchantList(possibleMerchants, d,db);
     }
 
+    @Override
+    public void registerStackKey(Handler.PHKey key) {
+
+    }
 
 
     public static void handleReject(Dialogue d){

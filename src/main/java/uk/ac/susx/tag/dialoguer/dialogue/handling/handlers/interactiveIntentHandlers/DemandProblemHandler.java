@@ -2,10 +2,7 @@ package uk.ac.susx.tag.dialoguer.dialogue.handling.handlers.interactiveIntentHan
 
 import uk.ac.susx.tag.dialoguer.dialogue.components.Dialogue;
 import uk.ac.susx.tag.dialoguer.dialogue.components.Intent;
-import uk.ac.susx.tag.dialoguer.dialogue.components.Message;
-import uk.ac.susx.tag.dialoguer.dialogue.handling.handlers.Handler;
 import uk.ac.susx.tag.dialoguer.dialogue.handling.handlers.InteractiveHandler;
-import uk.ac.susx.tag.dialoguer.knowledge.location.NominatimAPIWrapper;
 
 import java.util.*;
 import java.util.stream.Collectors;

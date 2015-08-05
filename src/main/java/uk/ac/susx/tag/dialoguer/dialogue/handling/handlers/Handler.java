@@ -180,15 +180,33 @@ public abstract class Handler implements AutoCloseable {
     }
 
     public static class PHKey {
-        PHKey(String uid) {
+        public PHKey(String uid) {
             this.uid = uid;
+        }
+
+
+        @Override
+        public boolean equals(Object o) {
+            if (o.getClass() == this.getClass()) {
+                if (((PHKey)o).uid == this.uid) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        @Override
+        public int hashCode() {
+            return uid.hashCode();
         }
 
         public final String uid;
     }
 
     protected void registerProblemHandler(ProblemHandler h) {
-        problemHandlers.put(new PHKey(h.getClass().getName() + "_" + phkeyCounter++), h);
+        PHKey phk = new PHKey(h.getClass().getName() + "_" + phkeyCounter++);
+        h.registerStackKey(phk);
+        problemHandlers.put(phk, h);
     }
 
 //    protected Response applyFirstProblemHandlerOrNull(List<Intent> intents, Dialogue dialogue, Object resource){

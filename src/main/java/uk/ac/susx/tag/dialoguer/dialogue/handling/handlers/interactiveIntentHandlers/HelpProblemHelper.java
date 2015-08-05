@@ -25,4 +25,9 @@ public class HelpProblemHelper implements Handler.ProblemHandler {
         System.err.println("help intent handler fired");
         InteractiveHandler.handleGps(dialogue);
     }
+
+    @Override
+    public void registerStackKey(Handler.PHKey key) {
+
+    }
 }

@@ -1,15 +1,12 @@
 package uk.ac.susx.tag.dialoguer.dialogue.handling.handlers.taxiServiceHandlers;
 
-import com.google.common.collect.Lists;
 import uk.ac.susx.tag.dialoguer.Dialoguer;
 import uk.ac.susx.tag.dialoguer.dialogue.components.Dialogue;
 import uk.ac.susx.tag.dialoguer.dialogue.components.Intent;
-import uk.ac.susx.tag.dialoguer.dialogue.components.Response;
 import uk.ac.susx.tag.dialoguer.dialogue.handling.handlers.Handler;
 import uk.ac.susx.tag.dialoguer.dialogue.handling.handlers.TaxiServiceHandler;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Created by juliewe on 19/05/2015.
@@ -42,6 +39,11 @@ public class OrderTaxiMethod implements Handler.ProblemHandler{
         dialogue.pushFocus(TaxiServiceHandler.confirmResponse);
         TaxiServiceHandler.allSlots.stream().forEach(s->handleEntity(intent,dialogue,s));
         dialogue.addToWorkingIntents(intent);
+    }
+
+    @Override
+    public void registerStackKey(Handler.PHKey key) {
+
     }
 
 

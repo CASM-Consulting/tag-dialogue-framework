@@ -31,6 +31,11 @@ public class CheckinMethod implements Handler.ProblemHandler {
     }
 
     @Override
+    public void registerStackKey(Handler.PHKey key) {
+
+    }
+
+    @Override
     public boolean isInHandleableState(List<Intent> intents, Dialogue dialogue) {
         return intents.stream().anyMatch(i->i.isName(PaypalCheckinHandler.checkinIntent));
     }

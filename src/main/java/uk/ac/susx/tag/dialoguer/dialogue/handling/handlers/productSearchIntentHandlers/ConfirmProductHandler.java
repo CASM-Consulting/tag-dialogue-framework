@@ -48,6 +48,11 @@ public class ConfirmProductHandler implements Handler.ProblemHandler {
         if(!updated && accepting <0){handleNoInfo(dialogue,ProductSearchHandler.castDB(resource));}
     }
 
+    @Override
+    public void registerStackKey(Handler.PHKey key) {
+
+    }
+
 
     public static int determineAccepting(List<Intent> intents) {
         int accepting = 0; //1=accepting, -1=rejecting, 0=don't know

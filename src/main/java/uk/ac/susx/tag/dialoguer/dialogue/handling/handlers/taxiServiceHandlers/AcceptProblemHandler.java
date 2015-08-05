@@ -50,6 +50,11 @@ public class AcceptProblemHandler implements Handler.ProblemHandler {
 
     }
 
+    @Override
+    public void registerStackKey(Handler.PHKey key) {
+
+    }
+
     private boolean validAcceptIntents(List<Intent> intents){
         //check the intents more thoroughly if required
         return true;

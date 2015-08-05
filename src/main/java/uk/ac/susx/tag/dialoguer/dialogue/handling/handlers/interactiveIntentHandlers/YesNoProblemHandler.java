@@ -87,4 +87,9 @@ public class YesNoProblemHandler implements Handler.ProblemHandler {
             }
         }
     }
+
+    @Override
+    public void registerStackKey(Handler.PHKey key) {
+
+    }
 }

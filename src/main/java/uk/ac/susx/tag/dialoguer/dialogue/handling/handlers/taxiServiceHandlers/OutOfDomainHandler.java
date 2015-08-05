@@ -23,4 +23,9 @@ public class OutOfDomainHandler implements Handler.ProblemHandler {
         dialogue.pushFocus(TaxiServiceHandler.unknownResponse);
     }
 
+    @Override
+    public void registerStackKey(Handler.PHKey key) {
+
+    }
+
 }

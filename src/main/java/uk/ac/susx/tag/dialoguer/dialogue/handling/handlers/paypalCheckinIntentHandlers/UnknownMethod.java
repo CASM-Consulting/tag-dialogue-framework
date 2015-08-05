@@ -32,6 +32,10 @@ public class UnknownMethod implements Handler.ProblemHandler {
 
     }
 
+    @Override
+    public void registerStackKey(Handler.PHKey key) {
+
+    }
 
 
 }

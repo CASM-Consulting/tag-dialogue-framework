@@ -4,6 +4,7 @@ import uk.ac.susx.tag.dialoguer.Dialoguer;
 import uk.ac.susx.tag.dialoguer.dialogue.components.Dialogue;
 import uk.ac.susx.tag.dialoguer.dialogue.components.Intent;
 import uk.ac.susx.tag.dialoguer.dialogue.components.Response;
+import uk.ac.susx.tag.dialoguer.dialogue.handling.handlers.Handler;
 import uk.ac.susx.tag.dialoguer.dialogue.handling.handlers.TaxiServiceHandler;
 import uk.ac.susx.tag.dialoguer.knowledge.database.product.Product;
 
@@ -66,6 +67,11 @@ public class ChoiceProblemHandler implements ProblemHandler {
         } catch (Exception e){
             throw new Dialoguer.DialoguerException("Not in handleable state for ChoiceProblemHandler "+e.toString());
         }
+    }
+
+    @Override
+    public void registerStackKey(Handler.PHKey key) {
+
     }
 
     /**

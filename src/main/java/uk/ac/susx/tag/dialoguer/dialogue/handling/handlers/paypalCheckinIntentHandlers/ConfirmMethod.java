@@ -26,6 +26,11 @@ public class ConfirmMethod implements Handler.ProblemHandler {
         handleAccept(d);
     }
 
+    @Override
+    public void registerStackKey(Handler.PHKey key) {
+
+    }
+
     public static void handleAccept(Dialogue d){
         //perform side effects
         System.out.println("Contacting paypal for user "+d.getId()+" to checkin at "+d.getFromWorkingMemory("merchantId")+" ("+d.getFromWorkingMemory("merchantName")+")....");

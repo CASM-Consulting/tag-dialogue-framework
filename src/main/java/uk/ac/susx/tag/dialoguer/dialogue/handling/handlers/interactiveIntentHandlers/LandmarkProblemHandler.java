@@ -173,6 +173,11 @@ public class LandmarkProblemHandler implements Handler.ProblemHandler {
         }
     }
 
+    @Override
+    public void registerStackKey(Handler.PHKey key) {
+
+    }
+
     private void buildAreas(int lmark, List<NominatimAPIWrapper.NomResult> instances[], List<List<NominatimAPIWrapper.NomResult>> areas) {
         if (lmark == 0) {
             for (int i = 0; i < instances[lmark].size(); ++i) {

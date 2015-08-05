@@ -4,10 +4,8 @@ import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import uk.ac.susx.tag.dialoguer.Dialoguer;
 import uk.ac.susx.tag.dialoguer.dialogue.components.Dialogue;
 import uk.ac.susx.tag.dialoguer.dialogue.components.Intent;
-import uk.ac.susx.tag.dialoguer.dialogue.components.Response;
 import uk.ac.susx.tag.dialoguer.dialogue.components.User;
 import uk.ac.susx.tag.dialoguer.dialogue.handling.handlers.Handler;
 import uk.ac.susx.tag.dialoguer.dialogue.handling.handlers.ProductSearchHandler;
@@ -55,9 +53,14 @@ public class BuyProblemHandler implements Handler.ProblemHandler{
         workingIntent.fillSlots(handleProduct(i, d, db));
         if(d.getFromWorkingMemory("focus")!=null){
             d.pushFocus(d.getFromWorkingMemory("focus"));
-            d.putToWorkingMemory("focus",null);
+            d.putToWorkingMemory("focus", null);
         }
         d.addToWorkingIntents(workingIntent);
+
+    }
+
+    @Override
+    public void registerStackKey(Handler.PHKey key) {
 
     }
 
@@ -82,7 +85,7 @@ public class BuyProblemHandler implements Handler.ProblemHandler{
                 s=new Intent.Slot(ProductSearchHandler.recipientSlot,d.getUserData().getAttribute("name"),0,0);
             } else {
                 d.pushFocus("unknown_recipient");
-                //d.putToWorkingMemory("recipient",recipientstring);
+                //d.putIntToWorkingMemory("recipient",recipientstring);
                 s = new Intent.Slot(ProductSearchHandler.recipientSlot, recipientstring, 0, 0);
             }
         }

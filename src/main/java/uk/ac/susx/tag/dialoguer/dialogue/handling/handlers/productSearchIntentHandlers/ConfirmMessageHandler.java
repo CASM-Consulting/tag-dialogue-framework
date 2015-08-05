@@ -42,6 +42,11 @@ public class ConfirmMessageHandler implements Handler.ProblemHandler {
 
     }
 
+    @Override
+    public void registerStackKey(Handler.PHKey key) {
+
+    }
+
 
     public static boolean handleUpdate(List<Intent> intents, Dialogue d, ProductMongoDB db){
 

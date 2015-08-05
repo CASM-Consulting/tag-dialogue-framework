@@ -22,5 +22,10 @@ public class IdkProblemHandler implements Handler.ProblemHandler {
     @Override
     public void handle(List<Intent> intents, Dialogue dialogue, Object resource) {
     }
+
+    @Override
+    public void registerStackKey(Handler.PHKey key) {
+
+    }
 }
 

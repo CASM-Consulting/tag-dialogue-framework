@@ -24,5 +24,10 @@ public class GpsProblemHandler implements Handler.ProblemHandler {
     public void handle(List<Intent> intents, Dialogue dialogue, Object resource) {
         InteractiveHandler.handleGps(dialogue);
     }
+
+    @Override
+    public void registerStackKey(Handler.PHKey key) {
+
+    }
 }
 

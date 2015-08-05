@@ -25,4 +25,9 @@ public class UnknownProblemHandler implements Handler.ProblemHandler {
         System.err.println("Unknwon meaning");
         dialogue.pushFocus(InteractiveHandler.unknownResponse);
     }
+
+    @Override
+    public void registerStackKey(Handler.PHKey key) {
+
+    }
 }

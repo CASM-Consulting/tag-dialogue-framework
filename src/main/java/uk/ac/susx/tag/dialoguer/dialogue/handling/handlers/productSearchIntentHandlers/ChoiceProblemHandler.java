@@ -43,6 +43,11 @@ public class ChoiceProblemHandler implements Handler.ProblemHandler {
 
     }
 
+    @Override
+    public void registerStackKey(Handler.PHKey key) {
+
+    }
+
     private void handleNullChoice(List<Intent> intents, Dialogue d, ProductMongoDB db){
         d.clearChoices();
         ConfirmProductHandler.handleReject(d,ProductSearchHandler.productIdSlot); //add current productIds to rejected list

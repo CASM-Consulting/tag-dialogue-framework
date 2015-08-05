@@ -36,10 +36,17 @@ public class CrisisHandler extends Handler {
     HelpMeProblemHandler hph = new HelpMeProblemHandler();
 
     public CrisisHandler() {
-
+        registerProblemHandler(lph);
+        registerProblemHandler(dph);
+        registerProblemHandler(iph);
+        registerProblemHandler(hph);
     }
 
     public CrisisHandler(CrisisHandler config) {
+        registerProblemHandler(lph);
+        registerProblemHandler(dph);
+        registerProblemHandler(iph);
+        registerProblemHandler(hph);
         demands = config.demands;
         helpTable = config.helpTable;
         demandChoices = new ArrayList<String>(demands.values());
@@ -119,15 +126,13 @@ public class CrisisHandler extends Handler {
     public Dialogue getNewDialogue(String dialogueId) {
         DialogueTracker.logger.log(Level.INFO, "NEW");
 
-        lph = new LocationProblemHandler();
-        dph = new DemandProblemHandler();
-        iph = new IdkProblemHandler();
-        hph = new HelpMeProblemHandler();
         demandChoices = new ArrayList<String>(demands.values());
         dph.demandChoices = demandChoices;
         dph.demands = demands;
         hph.helpTable = helpTable;
         Dialogue d = new Dialogue(dialogueId);
+        lph.initMem(d);
+        dph.initMem(d);
         return d;
     }
 
@@ -165,7 +170,7 @@ public class CrisisHandler extends Handler {
             focus = unknownResponse;
         }
 
-        if (!lph.getLocation().equals("") && !dph.getDemand().equals("")) {
+        if (!lph.getLocation(d).equals("") && !dph.getDemand(d).equals("")) {
             focus = focus_demand_sent;
         }
 
@@ -175,7 +180,7 @@ public class CrisisHandler extends Handler {
         DialogueTracker.logger.log(Level.INFO, "Nothing");
         switch(focus) {
             case focus_demand_sent:
-                responseVariables.put(dph.slot_out_demand, dph.demands.get(dph.getDemand()));
+                responseVariables.put(dph.slot_out_demand, dph.demands.get(dph.getDemand(d)));
                 d.complete();
                 DialogueTracker.logger.log(Level.INFO, "BOOM");
                 break;

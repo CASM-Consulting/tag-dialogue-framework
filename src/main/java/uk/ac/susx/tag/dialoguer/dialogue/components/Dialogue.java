@@ -2,6 +2,7 @@ package uk.ac.susx.tag.dialoguer.dialogue.components;
 
 import com.google.common.collect.Lists;
 import uk.ac.susx.tag.dialoguer.Dialoguer;
+import uk.ac.susx.tag.dialoguer.dialogue.handling.handlers.Handler;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -69,7 +70,7 @@ public class Dialogue {
     private List<Intent> intents;              // Pertinent user intents, still requiring attention by the handler
     private AutoQueryTracker autoQueryTracker; // Track status of auto-queries for necessary slots on intents
 
-    private Map<String, String> workingMemory; // Data about the current dialogue, e.g. partially filled slots that could be useful for subsequent intents
+    private Map<String, Object> workingMemory; // Data about the current dialogue, e.g. partially filled slots that could be useful for subsequent intents
     private List<String> states;               // States the dialogue is actually IN. Think: all the states passed to a single Wit.Ai query
     private FocusStackManager focStackMan;     // Managemennt of quesiton focuses
 
@@ -108,7 +109,7 @@ public class Dialogue {
  * Intent management
  ***********************************************/
     public List<Intent> getWorkingIntents() { return intents; }
-    public Intent peekTopIntent() {return intents.get(intents.size()-1);}
+    public Intent peekTopIntent() {return intents.get(intents.size() - 1);}
     public Intent popTopIntent() {return intents.remove(intents.size() - 1);}
     public void addToWorkingIntents(Intent i) { intents.add(i); }
     public void addToWorkingIntents(List<Intent> intents){ this.intents.addAll(intents); }
@@ -122,26 +123,27 @@ public class Dialogue {
 
     public String peekTopFocus() { return focStackMan.peekTopFocus();}
     public String popTopFocus() { return focStackMan.popTopFocus();}
-    public void pushFocus(String newTopFocus) { focStackMan.pushFocus(newTopFocus); }
+    public void pushFocus(String newTopFocus) { focStackMan.pushFocus(new PriorityFocus(newTopFocus)); }
+    public void pushFocus(PriorityFocus newTopFocus) { focStackMan.pushFocus(newTopFocus); }
     public boolean isFocusPresent(String focus) { return focStackMan.isFocusPresent(focus); }
     public void removeFocus(String focus) { focStackMan.getFocusStack().remove(focus); }
     public void clearFocusStack() { focStackMan.clearFocusStack();}
     public boolean isEmptyFocusStack() {return focStackMan.isEmptyFocusStack();}
     public List<PriorityFocus> getFocusStack() { return focStackMan.getFocusStack(); }
-    public int createFocusStack() { return focStackMan.createFocusStack(); }
 
     /***********************************************
      * Auxiliary Question focus stacks
      ***********************************************/
 
-    public String multiPeekTopFocus(int id) { return focStackMan.multiPeekTopFocus(id);}
-    public String multiPopTopFocus(int id) { return focStackMan.multiPopTopFocus(id);}
-    public void multiPushFocus(int id, String newTopFocus) { focStackMan.multiPushFocus(id, newTopFocus); }
-    public boolean multiIsFocusPresent(int id, String focus) { return focStackMan.multiIsFocusPresent(id, focus); }
-    public void multiRemoveFocus(int id, String focus) { focStackMan.multiRemoveFocus(id, focus); }
-    public void multiClearFocusStack(int id) { focStackMan.multiClearFocusStack(id);}
-    public boolean multiIsEmptyFocusStack(int id) {return focStackMan.multiIsEmptyFocusStack(id);}
-    public List<PriorityFocus> multiGetFocusStack(int id) { return focStackMan.getFocusStack(id); }
+    public PriorityFocus multiPeekTopFocus(Handler.PHKey stackKey) { return focStackMan.multiPeekTopFocus(stackKey);}
+    public PriorityFocus multiPopTopFocus(Handler.PHKey stackKey) { return focStackMan.multiPopTopFocus(stackKey);}
+    public void multiPushFocus(Handler.PHKey stackKey, String newTopFocus) { focStackMan.multiPushFocus(stackKey, new PriorityFocus(newTopFocus)); }
+    public void multiPushFocus(Handler.PHKey stackKey, PriorityFocus newTopFocus) { focStackMan.multiPushFocus(stackKey, newTopFocus); }
+    public boolean multiIsFocusPresent(Handler.PHKey stackKey, String focus) { return focStackMan.multiIsFocusPresent(stackKey, focus); }
+    public void multiRemoveFocus(Handler.PHKey stackKey, String focus) { focStackMan.multiRemoveFocus(stackKey, focus); }
+    public void multiClearFocusStack(Handler.PHKey stackKey) { focStackMan.multiClearFocusStack(stackKey);}
+    public boolean multiIsEmptyFocusStack(Handler.PHKey stackKey) {return focStackMan.multiIsEmptyFocusStack(stackKey);}
+    public List<PriorityFocus> multiGetFocusStack(Handler.PHKey stackKey) { return focStackMan.getFocusStack(stackKey); }
 
 /***********************************************
  * Choice / Confirmation management
@@ -168,17 +170,37 @@ public class Dialogue {
  * Working memory management
  ***********************************************/
     public void putToWorkingMemory(String key, String dataValue) { workingMemory.put(key, dataValue);}
+    public void putIntToWorkingMemory(String key, int dataValue) { workingMemory.put(key, dataValue);}
+    public void putDoubleToWorkingMemory(String key, double dataValue) { workingMemory.put(key, dataValue);}
+    public void putBooleanToWorkingMemory(String key, boolean dataValue) { workingMemory.put(key, dataValue);}
+    public void putListToWorkingMemory(String key, List<String> dataValue) { workingMemory.put(key, dataValue);}
+
     public boolean isInWorkingMemory(String key, String value){
         return workingMemory.containsKey(key) && workingMemory.get(key).equals(value);
     }
+    public boolean isInWorkingMemory(String key, int value){
+        return workingMemory.containsKey(key) && workingMemory.get(key).equals(value);
+    }
+    public boolean isInWorkingMemory(String key, double value){
+        return workingMemory.containsKey(key) && workingMemory.get(key).equals(value);
+    }
+    public boolean isInWorkingMemory(String key, boolean value){
+        return workingMemory.containsKey(key) && workingMemory.get(key).equals(value);
+    }
+    public boolean isInWorkingMemory(String key, List<String> value){
+        return workingMemory.containsKey(key) && workingMemory.get(key).equals(value);
+    }
+
+    @Deprecated
     public void appendToWorkingMemory(String key, String appendValue){
         appendToWorkingMemory(key, appendValue, "");
     }
 
     /**
      * Append *appendValue* to whatever string is in working memory for *key*, separated by *separator*.
-     * If *key* is not in working memory, then this method is the same as putToWorkingMemory.
+     * If *key* is not in working memory, then this method is the same as putIntToWorkingMemory.
      */
+    @Deprecated
     public void appendToWorkingMemory(String key, String appendValue, String separator){
         if (workingMemory.containsKey(key)){
             workingMemory.put(key, workingMemory.get(key)+separator+appendValue);
@@ -186,9 +208,19 @@ public class Dialogue {
             putToWorkingMemory(key, appendValue);
         }
     }
+
+
     public void removeFromWorkingMemory(String key) { workingMemory.remove(key); }
+
     public void clearWorkingMemory() { workingMemory = new HashMap<>(); }
-    public String getFromWorkingMemory(String key) { return workingMemory.get(key); }
+
+    public String getFromWorkingMemory(String key) { return (String)workingMemory.get(key); }
+    public String getStringFromWorkingMemory(String key) { return (String)workingMemory.get(key); }
+    public int getIntFromWorkingMemory(String key) { return (int)workingMemory.get(key); }
+    public double getDoubleFromWorkingMemory(String key) { return (double)workingMemory.get(key); }
+    public boolean getBooleanFromWorkingMemory(String key) { return (boolean)workingMemory.get(key); }
+    public List<String> getListFromWorkingMemory(String key) { return (List<String>)workingMemory.get(key); }
+
     public String getStrippedText(){ return getFromWorkingMemory("stripped"); }
     public String getStrippedNoStopwordsText(){ return getFromWorkingMemory("strippedNoStopwords"); }
 

@@ -30,6 +30,11 @@ public class AcceptProblemHandler implements Handler.ProblemHandler{
         handleAccept(dialogue);
     }
 
+    @Override
+    public void registerStackKey(Handler.PHKey key) {
+
+    }
+
     private boolean isComplete(Intent i){
         if (i.getName().equals(ProductSearchHandler.buy)){
             if(i.getSlotValuesByType(ProductSearchHandler.productIdSlot).stream().count()==1) {
