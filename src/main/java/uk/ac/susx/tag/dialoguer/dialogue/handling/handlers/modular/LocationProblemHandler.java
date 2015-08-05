@@ -418,6 +418,7 @@ public class LocationProblemHandler implements Handler.ProblemHandler, PriorityF
         switch(focus) {
             case focus_location_confirm:
                 responseVariables.put(slot_out_location,  d.getStringFromWorkingMemory(memloc_location));
+                d.setRequestingYesNo(true);
                 break;
             case focus_landmarks_more:
                 responseVariables.put(slot_out_num_locations, Integer.toString(d.getIntFromWorkingMemory(memloc_locationsPossible)));
