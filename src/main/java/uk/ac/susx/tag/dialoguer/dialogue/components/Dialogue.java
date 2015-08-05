@@ -62,6 +62,7 @@ import java.util.stream.Collectors;
  * Date: 16/03/2015
  * Time: 15:29
  */
+
 public class Dialogue {
 
     private String id;
