@@ -44,11 +44,21 @@ public class DemandProblemHandler implements Handler.ProblemHandler, PriorityFoc
     public  String demand_unknown = "demand_unknown";
 
 
+    /**
+     * Must be called on construction of new dialogue to initialize values which will be used during execution.
+     * @param d New dialouge
+     */
     public void initMem(Dialogue d) {
         d.putToWorkingMemory(memloc_demand, "");
         d.putIntToWorkingMemory(memloc_choice, -1);
     }
 
+    /**
+     * Determines whether the intent set is handlable by this problem handler and returns value accordingly.
+     * @param intents Current set of intent
+     * @param dialogue Dialugoue instance
+     * @return True if the set is handlable, false otherwise
+     */
     @Override
     public boolean isInHandleableState(List<Intent> intents, Dialogue dialogue) {
         boolean demandS = intents.stream().filter(i->i.getSlots().containsKey(slot_demand)).count()>0;
@@ -56,6 +66,12 @@ public class DemandProblemHandler implements Handler.ProblemHandler, PriorityFoc
         return (demandS || demandChoice) && dialogue.getFromWorkingMemory(memloc_demand).equals("");
     }
 
+    /**
+     * Handle the current set of intents
+     * @param intents Intents extracted from user input
+     * @param dialogue Dialogue instance
+     * @param resource Unused
+     */
     @Override
     public void handle(List<Intent> intents, Dialogue dialogue, Object resource) {
         Intent intDem = intents.stream().filter(i -> i.getSlots().containsKey(slot_demand)).findFirst().orElse(null);
@@ -80,12 +96,22 @@ public class DemandProblemHandler implements Handler.ProblemHandler, PriorityFoc
         }
     }
 
+
+    /**
+     * Registers the key for the priority stack
+     * @param key Stack key
+     */
     @Override
     public void registerStackKey(Handler.PHKey key) {
         stackKey = key;
     }
 
 
+    /**
+     * Returns Priority Focus which is currently stored on top of the stack
+     * @param d Dialouge instance
+     * @return Priority focus, null if stack is empty
+     */
     @Override
     public PriorityFocus peekFocus(Dialogue d) {
         if (d.multiIsEmptyFocusStack(stackKey)) {
@@ -101,8 +127,11 @@ public class DemandProblemHandler implements Handler.ProblemHandler, PriorityFoc
         }
         return d.multiPeekTopFocus(stackKey);
     }
-
-    //If the handler has nothing to talk about, this method can be used to initialize new topic
+    /**
+     * Returns Priority Focus which is currently stored on top of the stack and removes it from the stack
+     * @param d Dialouge instance
+     * @return Priority focus, null if stack is empty
+     */
     @Override
     public PriorityFocus popFocus(Dialogue d) {
         if (d.multiIsEmptyFocusStack(stackKey)) {
@@ -119,10 +148,22 @@ public class DemandProblemHandler implements Handler.ProblemHandler, PriorityFoc
         return d.multiPopTopFocus(stackKey);
     }
 
+    /**
+     * Returns the user demand extracted from the conversation
+     * @param d Dialogue instnace
+     * @return Demand or null if not extracted
+     */
     public String getDemand(Dialogue d) {
         return d.getFromWorkingMemory(memloc_demand);
     }
 
+    /**
+     * Processes the response given to the user, filling necessary information etc.
+     * @param focus The response to be given
+     * @param responseVariables Variables of the rseponse
+     * @param d Dialogue incvzn e
+     * @return Modified response variables
+     */
     public Map<String, String> processResponse(String focus, Map<String, String> responseVariables, Dialogue d) {
         switch(focus) {
             case DemandProblemHandler.focus_chose_demand:

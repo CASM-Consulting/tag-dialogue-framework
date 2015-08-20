@@ -22,6 +22,13 @@ public class HelpMeProblemHandler implements Handler.ProblemHandler {
     //Memory
     static public final String help_string = "help_string";
 
+
+    /**
+     * Determines whether the intent set is handlable by this problem handler and returns value accordingly.
+     * @param intents Current set of intent
+     * @param dialogue Dialugoue instance
+     * @return True if the set is handlable, false otherwise
+     */
     @Override
     public boolean isInHandleableState(List<Intent> intents, Dialogue dialogue) {
         boolean demandS = intents.stream().filter(i->i.getName().equals(intent_help)).count()>0;
@@ -32,6 +39,13 @@ public class HelpMeProblemHandler implements Handler.ProblemHandler {
         return demandS && dialogue.getMessageHistory().get(histSize - 2).getResponseName() != null;
     }
 
+
+    /**
+     * Handle the current set of intents
+     * @param intents Intents extracted from user input
+     * @param dialogue Dialogue instance
+     * @param resource Unused
+     */
     @Override
     public void handle(List<Intent> intents, Dialogue dialogue, Object resource) {
         dialogue.pushFocus(focus_help);
@@ -43,6 +57,10 @@ public class HelpMeProblemHandler implements Handler.ProblemHandler {
         }
     }
 
+    /**
+     * Unused
+     * @param key
+     */
     @Override
     public void registerStackKey(Handler.PHKey key) {
 

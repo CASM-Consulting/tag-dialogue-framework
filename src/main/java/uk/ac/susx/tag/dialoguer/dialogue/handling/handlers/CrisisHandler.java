@@ -7,7 +7,6 @@ import uk.ac.susx.tag.dialoguer.dialogue.components.Response;
 import uk.ac.susx.tag.dialoguer.dialogue.handling.factories.HandlerFactory;
 import uk.ac.susx.tag.dialoguer.dialogue.handling.handlers.modular.DemandProblemHandler;
 import uk.ac.susx.tag.dialoguer.dialogue.handling.handlers.modular.HelpMeProblemHandler;
-import uk.ac.susx.tag.dialoguer.dialogue.handling.handlers.modular.IdkProblemHandler;
 import uk.ac.susx.tag.dialoguer.dialogue.handling.handlers.modular.LocationProblemHandler;
 import uk.ac.susx.tag.dialoguer.knowledge.location.NominatimAPIWrapper;
 
@@ -32,20 +31,17 @@ public class CrisisHandler extends Handler {
 
     LocationProblemHandler lph = new LocationProblemHandler();
     DemandProblemHandler dph = new DemandProblemHandler();
-    IdkProblemHandler iph = new IdkProblemHandler();
     HelpMeProblemHandler hph = new HelpMeProblemHandler();
 
     public CrisisHandler() {
         registerProblemHandler(lph);
         registerProblemHandler(dph);
-        registerProblemHandler(iph);
         registerProblemHandler(hph);
     }
 
     public CrisisHandler(CrisisHandler config) {
         registerProblemHandler(lph);
         registerProblemHandler(dph);
-        registerProblemHandler(iph);
         registerProblemHandler(hph);
         demands = config.demands;
         helpTable = config.helpTable;
@@ -57,10 +53,6 @@ public class CrisisHandler extends Handler {
 
     @Override
     public Response handle(List<Intent> intents, Dialogue dialogue) {
-        if (intents.stream().filter(i->i.getText().equals("QUIT")).count()>0) {
-            dialogue.complete();
-            return null;
-        }
 
         Intent intLoc = intents.stream().filter(i -> i.getSlots().containsKey(lph.slot_location)).findFirst().orElse(null);
         //Intent.Slot slLoc = (intLoc == null) ? null : c.iterator().next();
@@ -147,12 +139,11 @@ public class CrisisHandler extends Handler {
     }
 
 
-    /****
-     *
-     * @param d
-     * @return
+    /**
      * Generate a response based on the current state of the dialogue (most specifically the FocusStack)
      * Pop the focus stack, add responseVariables which are required by this focus, generate the Response associated with this focus and responseVariables
+     * @param d Dialogue instance
+     * @return Genrated response
      */
     public Response processStack(Dialogue d){
 
