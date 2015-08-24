@@ -9,6 +9,8 @@ import uk.ac.susx.tag.dialoguer.knowledge.location.NominatimAPIWrapper;
 import uk.ac.susx.tag.dialoguer.knowledge.location.RadiusAssigner;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by Saska on 7/15/2015.
@@ -156,6 +158,7 @@ public class LocationProblemHandler implements Handler.ProblemHandler, PriorityF
         Intent intLoc = intents.stream().filter(i -> i.getSlots().containsKey(slot_location)).findFirst().orElse(null);
         Intent intLm = null;
         Intent.Slot slLm = null;
+        String origLoc = "";
         if (dialogue.getCurrentMessageNumber() == dialogue.getIntFromWorkingMemory(memloc_landmarksAskedMsgNo) + 1) {
             intLm = intents.stream().filter(i -> i.getSource().equals(source_landmarks)).filter(i -> i.getSlots().containsKey(slot_place)).findFirst().orElse(null);
             slLm = (intLm == null) ? null : intLm.getSlotByType(slot_place).iterator().next();
@@ -165,12 +168,16 @@ public class LocationProblemHandler implements Handler.ProblemHandler, PriorityF
         }
         Intent.Slot slLoc = (intLoc == null) ? null : intLoc.getSlotByType(slot_location).iterator().next(); //TODO: Is it necessary to handle multiple or is one enough?
 
+        origLoc = (slLoc == null) ? null : slLoc.value;
+
         LocTestResult lmark = null;
         if (slLm != null) {
             lmark = testLocation(slLm);
             if (slLoc == null && lmark.result == LocTestResult.Address) {
                 slLoc = slLm;
+                origLoc = slLm.value;
                 slLoc.value = lmark.str;
+                intLoc = intLm;
                 slLm = null;
             } else if (lmark.result == LocTestResult.Nothing || lmark.result == LocTestResult.Address) { //Not a landmark, change loc to empty string to make the search fail
                 slLm.value = "";
@@ -179,9 +186,11 @@ public class LocationProblemHandler implements Handler.ProblemHandler, PriorityF
         if (slLoc != null) {
             LocTestResult addr = testLocation(slLoc);
             if (addr.result == LocTestResult.Landmark || addr.result == LocTestResult.Nothing) {  //Not an address, change loc to empty string to make the search fail
+                origLoc = slLoc.value;
                 slLoc.value = "";
                 if (addr.result == LocTestResult.Landmark && (slLm == null || lmark.result == LocTestResult.Nothing || lmark.result == LocTestResult.Address)) {
                     slLm = slLoc;
+                    intLoc = intLm;
                     slLoc = null;
                 }
             } else {
@@ -239,7 +248,22 @@ public class LocationProblemHandler implements Handler.ProblemHandler, PriorityF
                         location += res.address.values().iterator().next() + ", ";
                     }
                     if (res.address.get("house_number") != null) {
-                        location += res.address.get("house_number") + ", ";
+                        location += res.address.get("house_number") + " ";
+                    } else {
+                        int idx = intLoc.getText().indexOf(origLoc);
+                        String substr = intLoc.getText().substring(0, idx).trim();
+                        String substr2 = intLoc.getText().substring(idx).trim();
+                        Pattern p = Pattern.compile("[0-9]+$");
+                        Pattern p2 = Pattern.compile("\\A[0-9]+");
+                        Matcher m = p.matcher(substr);
+                        Matcher m2 = p2.matcher(substr2);
+                        if(m2.find()) {
+                            String result = m2.group();
+                            location += result + " ";
+                        } else if(m.find()){
+                            String result = m.group();
+                            location += result + " ";
+                        }
                     }
                     if (res.address.get("road") != null) {
                         location += res.address.get("road") + ", ";
@@ -287,8 +311,26 @@ public class LocationProblemHandler implements Handler.ProblemHandler, PriorityF
                         && !res[0].address.keySet().iterator().next().equals("footway") ) {
                     location += res[0].address.values().iterator().next() + ", ";
                 }
+                boolean extractedHouseNumber = false;
                 if (res[0].address.get("house_number") != null) {
-                    location += res[0].address.get("house_number") + ", ";
+                    location += res[0].address.get("house_number") + " ";
+                } else {
+                    int idx = intLoc.getText().indexOf(origLoc);
+                    String substr = intLoc.getText().substring(0, idx).trim();
+                    String substr2 = intLoc.getText().substring(idx).trim();
+                    Pattern p = Pattern.compile("[0-9]+$");
+                    Pattern p2 = Pattern.compile("\\A[0-9]+");
+                    Matcher m = p.matcher(substr);
+                    Matcher m2 = p2.matcher(substr2);
+                    if(m2.find()) {
+                        String result = m2.group();
+                        extractedHouseNumber = true;
+                        location += result + " ";
+                    } else if(m.find()){
+                        String result = m.group();
+                        extractedHouseNumber = true;
+                        location += result + " ";
+                    }
                 }
                 if (res[0].address.get("road") != null) {
                     location += res[0].address.get("road") + ", ";
@@ -313,7 +355,7 @@ public class LocationProblemHandler implements Handler.ProblemHandler, PriorityF
                 dialogue.putBooleanToWorkingMemory(memloc_locationConfirmed, false); //Location does not need confirmation when manually entered //TODO: is this good idea?
                 dialogue.putBooleanToWorkingMemory(memloc_acknowledgeChance, true);
 
-                if (!res[0].address.containsKey("house_number")) {
+                if (!res[0].address.containsKey("house_number") && !extractedHouseNumber) {
                     dialogue.putIntToWorkingMemory(memloc_locationsPossible, 500);
                     if (landmarks.size() > 0) {
                         if (!validateLandmark(dialogue, landmarks.get(0))) {
@@ -338,7 +380,7 @@ public class LocationProblemHandler implements Handler.ProblemHandler, PriorityF
                         return;
                     }
                     dialogue.multiPushFocus(stackKey, new PriorityFocus(focus_landmarks, 2));
-                } else {
+                } else if (extractedHouseNumber) {
                     dialogue.putBooleanToWorkingMemory(memloc_locationConfirmed, true);
                 }
                 return;
