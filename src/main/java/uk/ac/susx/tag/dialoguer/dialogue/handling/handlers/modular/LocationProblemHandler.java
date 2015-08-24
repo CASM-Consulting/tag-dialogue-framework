@@ -16,7 +16,7 @@ import java.util.*;
 
 
 /**
- * This class encompasess the prcesses needed to hold dialogs (or their portions) about user's location where main
+ * This class encompasess the processes needed to hold dialogs (or their portions) about user's location where main
  * objective is to obtain the locatoion of the user.
  */
 public class LocationProblemHandler implements Handler.ProblemHandler, PriorityFocusProvider {
