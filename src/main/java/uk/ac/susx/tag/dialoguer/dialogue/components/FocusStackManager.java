@@ -60,7 +60,7 @@ public class FocusStackManager {
     public void pushFocus(PriorityFocus newTopFocus) { getFocusStack().add(newTopFocus); }
     public boolean isFocusPresent(String focus) { return getFocusStack().contains(new PriorityFocus(focus)); }
     public boolean isEmptyFocusStack() {return getFocusStack().isEmpty();}
-    public void removeFocus(String focus) { getFocusStack().remove(focus); }
+    public void removeFocus(String focus) { getFocusStack().remove(new PriorityFocus(focus)); }
     public void clearFocusStack() { getFocusStack().clear();}
 
     /***********************************************

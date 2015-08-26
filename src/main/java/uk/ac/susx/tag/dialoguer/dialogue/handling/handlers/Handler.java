@@ -188,7 +188,7 @@ public abstract class Handler implements AutoCloseable {
         @Override
         public boolean equals(Object o) {
             if (o.getClass() == this.getClass()) {
-                if (((PHKey)o).uid == this.uid) {
+                if (((PHKey)o).uid.equals(this.uid)) {
                     return true;
                 }
             }
