@@ -28,6 +28,7 @@ public abstract class Handler implements AutoCloseable {
 
     private Map<String, IntentHandler> intentHandlers = new HashMap<>();
     private Map<PHKey, ProblemHandler> problemHandlers = new HashMap<>();
+    private List<ProblemHandler> problemHandlersList = new ArrayList<>();
     private int phkeyCounter = 0;
 
 /********************************************************
@@ -207,6 +208,7 @@ public abstract class Handler implements AutoCloseable {
         PHKey phk = new PHKey(h.getClass().getName() + "_" + phkeyCounter++);
         h.registerStackKey(phk);
         problemHandlers.put(phk, h);
+        problemHandlersList.add(h);
     }
 
 //    protected Response applyFirstProblemHandlerOrNull(List<Intent> intents, Dialogue dialogue, Object resource){
@@ -225,7 +227,7 @@ public abstract class Handler implements AutoCloseable {
 //    }
 
     protected boolean useFirstProblemHandler(List<Intent> intents, Dialogue dialogue, Object resource){
-        ProblemHandler handler = problemHandlers.values().stream()
+        ProblemHandler handler = problemHandlersList.stream()
                                 .filter(h -> h.isInHandleableState(intents, dialogue))
                                 .findFirst().orElse(null);
         if (handler != null) {
