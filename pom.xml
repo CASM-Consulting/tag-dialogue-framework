@@ -10,12 +10,13 @@
     <version>0.2.1-SNAPSHOT</version>
     <inceptionYear>2015</inceptionYear>
 
-    <parent>
-        <relativePath>../tag-dist</relativePath>
-        <version>1.0.3</version>
-        <groupId>uk.ac.susx.tag</groupId>
-        <artifactId>tag-dist</artifactId>
-    </parent>
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub CASM-Consulting Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/CASM-Consulting/method52</url>
+        </repository>
+    </distributionManagement>
 
     <properties>
         <jetty.version>9.1.5.v20140505</jetty.version>
